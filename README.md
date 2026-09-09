@@ -15,20 +15,20 @@ los pedidos.
 
 ## Estado actual
 
-Actualmente, el proyecto aun esta en una etapa inicial. Hasta el momento, realizamos el UML,
+Actualmente, el proyecto aún esta en una etapa inicial. Hasta el momento, realizamos el UML,
 y acorde al mismo, creamos las clases correspondientes. Incluimos relaciones de herencia tanto
 en las clases Movimiento con MovimientoIngreso y MovimientoRetiro, como en PoliticaConsumo con 
 PoliticaFEFO. También, ya codeamos algunos metodos simples en algunas de las clases. Otros metodos,
 en clases como Deposito, reconocemos que requieren mas conocimientos teóricos de la materia que 
 todavia no tenemos. Además, ya estan todos los atributos y todos los setters y getters de todas 
 las clases. Priorizamos el hecho de no utilizar herramientas que todavía no hayamos visto en la 
-parte teorica de la materia.
+parte teórica de la materia.
 
 ## Diagrama de clases
 
 Ver `Diagrama.jpeg` en la raíz del repositorio.
 
-Muestra las relaciones entre las clases. Estas relaciones pueden ser de composicion, ascociacion
+Muestra las relaciones entre las clases. Estas relaciones pueden ser de composicion, asociación
 o herencia, lo cual esta indicado mediante el tipo de flecha utilizado.
 
 ## Estructura del proyecto
