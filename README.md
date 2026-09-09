@@ -33,16 +33,15 @@ o herencia, lo cual esta indicado mediante el tipo de flecha utilizado.
 
 ## Estructura del proyecto
 
-inventario/
-├── init.py # Reexporta todas las clases del paquete
-├── material.py # Material
-├── proveedor.py # Proveedor
-├── remesa.py # Remesa
-├── movimiento.py # Movimiento (base), MovimientoIngreso, MovimientoRetiro
-├── politica_consumo.py # PoliticaConsumo (base), PoliticaFEFO
-├── retiro.py # Retiro
-├── pedido.py # RenglonPedido, Pedido
-└── deposito.py # Deposito (coordina todo el inventario)
+- `__init__.py` — Reexporta todas las clases del paquete
+- `material.py` — Material
+- `proveedor.py` — Proveedor
+- `remesa.py` — Remesa
+- `movimiento.py` — Movimiento (base), MovimientoIngreso, MovimientoRetiro
+- `politica_consumo.py` — PoliticaConsumo (base), PoliticaFEFO
+- `retiro.py` — Retiro
+- `pedido.py` — RenglonPedido, Pedido
+- `deposito.py` — Deposito (coordina todo el inventario)
 
 ## Qué está implementado
 
