@@ -35,7 +35,8 @@ class MovimientoIngreso(Movimiento):
     cantidad_ingresos = 0
 
     def __init__(self, id, fecha, remesa, cantidad):
-        super().__init__(id, fecha, remesa, cantidad)
+        cantidad_validada = self.validar_cantidad(cantidad)
+        super().__init__(id, fecha, remesa, cantidad_validada)
         MovimientoIngreso.cantidad_ingresos += 1
 
     # ---------- Metodo de CLASE ----------
@@ -46,7 +47,9 @@ class MovimientoIngreso(Movimiento):
     # ---------- Metodo ESTATICO ----------
     @staticmethod
     def validar_cantidad(valor):
-        pass
+        if valor <= 0:
+            raise ValueError("La cantidad debe ser mayor que cero")
+        return valor
 
     # ---------- Metodo de INSTANCIA (polimorfismo) ----------
     def tipo(self):
@@ -59,7 +62,8 @@ class MovimientoRetiro(Movimiento):
     cantidad_retiros_registrados = 0
 
     def __init__(self, id, fecha, remesa, cantidad, retiro):
-        super().__init__(id, fecha, remesa, cantidad)
+        cantidad_validada = self.validar_cantidad(cantidad)
+        super().__init__(id, fecha, remesa, cantidad_validada)
         self.retiro = retiro
         MovimientoRetiro.cantidad_retiros_registrados += 1
 
@@ -75,7 +79,9 @@ class MovimientoRetiro(Movimiento):
     # ---------- Metodo ESTATICO ----------
     @staticmethod
     def validar_cantidad(valor):
-        pass
+        if valor <= 0:
+            raise ValueError("La cantidad debe ser mayor que cero")
+        return valor
 
     # ---------- Metodo de INSTANCIA (polimorfismo) ----------
     def tipo(self):

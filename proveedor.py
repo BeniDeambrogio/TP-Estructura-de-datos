@@ -6,7 +6,7 @@ class Proveedor:
     def __init__(self, id, nombre, plazo_entrega_dias):
         self.id = id
         self.nombre = nombre
-        self.plazo_entrega_dias = plazo_entrega_dias
+        self.plazo_entrega_dias = self.validar_plazo_entrega(plazo_entrega_dias)
         Proveedor.cantidad_proveedores += 1
 
     # ---------- Getters ----------
@@ -21,7 +21,7 @@ class Proveedor:
 
     # ---------- Setter ----------
     def set_plazo_entrega_dias(self, nuevo_plazo):
-        self.plazo_entrega_dias = nuevo_plazo
+        self.plazo_entrega_dias = self.validar_plazo_entrega(nuevo_plazo)
 
     # ---------- Metodo de CLASE ----------
     @classmethod
@@ -31,4 +31,6 @@ class Proveedor:
     # ---------- Metodo ESTATICO ----------
     @staticmethod
     def validar_plazo_entrega(valor):
-        pass
+        if valor <= 0:
+            raise ValueError("El plazo de entrega debe ser mayor que cero")
+        return valor

@@ -10,7 +10,7 @@ class Material:
         self.id = id
         self.nombre = nombre
         self.unidad_medida = unidad_medida
-        self.punto_reposicion = punto_reposicion
+        self.punto_reposicion = self.validar_punto_reposicion(punto_reposicion)
         Material.cantidad_materiales += 1
 
     # ---------- Getters ----------
@@ -28,7 +28,7 @@ class Material:
 
     # ---------- Setter ----------
     def set_punto_reposicion(self, nuevo_punto_reposicion):
-        self.punto_reposicion = nuevo_punto_reposicion
+        self.punto_reposicion = self.validar_punto_reposicion(nuevo_punto_reposicion)
 
     # ---------- Metodo de CLASE ----------
     @classmethod
@@ -38,7 +38,9 @@ class Material:
     # ---------- Metodo ESTATICO ----------
     @staticmethod
     def validar_punto_reposicion(valor):
-        pass
+        if valor <= 0:
+            raise ValueError("El punto de reposicion debe ser mayor que cero")
+        return valor
 
     # ---------- Metodo de INSTANCIA ----------
     def requiere_reposicion(self, existencia_disponible):

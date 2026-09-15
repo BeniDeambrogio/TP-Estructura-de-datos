@@ -7,7 +7,7 @@ class Remesa:
         self.id = id
         self.material = material
         self.proveedor = proveedor
-        self.cantidad_recibida = cantidad_recibida
+        self.cantidad_recibida = self.validar_cantidad(cantidad_recibida)
         # RN12: el saldo disponible inicial coincide con la cantidad recibida.
         self.saldo_disponible = self.cantidad_recibida
         self.fecha_recepcion = fecha_recepcion
@@ -44,7 +44,9 @@ class Remesa:
     # ---------- Metodo ESTATICO ----------
     @staticmethod
     def validar_cantidad(valor):
-        pass
+        if valor <= 0:
+            raise ValueError("La cantidad debe ser mayor que cero")
+        return valor
 
     # ---------- Metodos de INSTANCIA ----------
     def esta_vencida(self, fecha):
@@ -56,5 +58,8 @@ class Remesa:
         return self.saldo_disponible > 0 and not self.esta_vencida(fecha)
 
     def consumir(self, cantidad):
-        # Todavia sin validar que alcance el saldo (pendiente: excepciones).
+        if cantidad <= 0:
+            raise ValueError("La cantidad a consumir debe ser mayor que cero")
+        if cantidad > self.saldo_disponible:
+            raise ValueError("No hay saldo disponible suficiente en la remesa")
         self.saldo_disponible -= cantidad

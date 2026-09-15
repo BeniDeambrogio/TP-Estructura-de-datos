@@ -6,7 +6,7 @@ class RenglonPedido:
 
     def __init__(self, material, cantidad, precio_unitario):
         self.material = material
-        self.cantidad = cantidad
+        self.cantidad = self.validar_cantidad(cantidad)
         self.precio_unitario = precio_unitario
 
     # ---------- Getters ----------
@@ -22,7 +22,9 @@ class RenglonPedido:
     # ---------- Metodo ESTATICO ----------
     @staticmethod
     def validar_cantidad(valor):
-        pass
+        if valor <= 0:
+            raise ValueError("La cantidad debe ser mayor que cero")
+        return valor
 
     # ---------- Metodo de INSTANCIA ----------
     def subtotal(self):

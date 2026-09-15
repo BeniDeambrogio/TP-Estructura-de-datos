@@ -7,7 +7,7 @@ class Retiro:
         self.id = id
         self.material = material
         self.fecha = fecha
-        self.cantidad_solicitada = cantidad_solicitada
+        self.cantidad_solicitada = self.validar_cantidad(cantidad_solicitada)
         self.movimientos = []
         Retiro.cantidad_retiros += 1
 
@@ -35,7 +35,9 @@ class Retiro:
     # ---------- Metodo ESTATICO ----------
     @staticmethod
     def validar_cantidad(valor):
-        pass
+        if valor <= 0:
+            raise ValueError("La cantidad debe ser mayor que cero")
+        return valor
 
     # ---------- Metodos de INSTANCIA ----------
     def agregar_movimiento(self, movimiento):
