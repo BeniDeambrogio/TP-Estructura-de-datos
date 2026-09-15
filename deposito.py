@@ -1,4 +1,4 @@
-from politica_consumo import PoliticaFEFO
+from .politica_consumo import PoliticaFEFO
 
 
 class Deposito:

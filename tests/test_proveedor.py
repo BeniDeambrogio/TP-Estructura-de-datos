@@ -1,4 +1,4 @@
-from proveedor import Proveedor
+from inventario import Proveedor
 
 
 def test_creacion_y_getters():

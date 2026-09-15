@@ -1,10 +1,6 @@
 from datetime import date
 
-from material import Material
-from movimiento import Movimiento, MovimientoIngreso, MovimientoRetiro
-from proveedor import Proveedor
-from remesa import Remesa
-from retiro import Retiro
+from inventario import Material, Movimiento, MovimientoIngreso, MovimientoRetiro, Proveedor, Remesa, Retiro
 
 
 def _remesa():

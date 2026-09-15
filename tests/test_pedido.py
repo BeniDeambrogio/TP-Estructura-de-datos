@@ -1,8 +1,6 @@
 from decimal import Decimal
 
-from material import Material
-from pedido import Pedido, RenglonPedido
-from proveedor import Proveedor
+from inventario import Material, Pedido, Proveedor, RenglonPedido
 
 
 def _material():
