@@ -1,8 +1,6 @@
 from datetime import date
 
-from material import Material
-from proveedor import Proveedor
-from remesa import Remesa
+from inventario import Material, Proveedor, Remesa
 
 
 def _material():

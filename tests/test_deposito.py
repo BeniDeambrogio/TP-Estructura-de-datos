@@ -1,5 +1,4 @@
-from deposito import Deposito
-from politica_consumo import PoliticaFEFO
+from inventario import Deposito, PoliticaFEFO
 
 
 def test_init_crea_colecciones_vacias_y_politica_fefo():

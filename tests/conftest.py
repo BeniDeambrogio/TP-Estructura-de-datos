@@ -1,11 +1,6 @@
 import pytest
 
-from material import Material
-from movimiento import MovimientoIngreso, MovimientoRetiro
-from pedido import Pedido
-from proveedor import Proveedor
-from remesa import Remesa
-from retiro import Retiro
+from inventario import Material, MovimientoIngreso, MovimientoRetiro, Pedido, Proveedor, Remesa, Retiro
 
 
 @pytest.fixture(autouse=True)

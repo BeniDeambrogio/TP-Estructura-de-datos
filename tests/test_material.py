@@ -1,4 +1,4 @@
-from material import Material
+from inventario import Material
 
 
 def test_creacion_y_getters():
