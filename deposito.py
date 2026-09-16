@@ -105,11 +105,10 @@ class Deposito:
         cantidad_restante = cantidad
         distribucion = []
         for remesa in remesas_ordenadas:
-            if cantidad_restante <= 0:
-                break
-            cantidad_a_consumir = min(remesa.get_saldo_disponible(), cantidad_restante)
-            distribucion.append((remesa, cantidad_a_consumir))
-            cantidad_restante -= cantidad_a_consumir
+            if cantidad_restante > 0:
+                cantidad_a_consumir = min(remesa.get_saldo_disponible(), cantidad_restante)
+                distribucion.append((remesa, cantidad_a_consumir))
+                cantidad_restante -= cantidad_a_consumir
 
         id_retiro = f"RET-{len(self.retiros) + 1}"
         retiro = Retiro(id_retiro, material, fecha, cantidad)
