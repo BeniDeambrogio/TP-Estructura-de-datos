@@ -1,3 +1,6 @@
+from datetime import date
+
+
 class PoliticaConsumo:
     """
     Clase base que define el contrato de una politica de consumo:
@@ -20,4 +23,12 @@ class PoliticaFEFO(PoliticaConsumo):
         super().__init__()
 
     def ordenar(self, remesas):
-        pass
+        return sorted(
+            remesas,
+            key=lambda r: (
+                r.get_fecha_vencimiento() is None,
+                r.get_fecha_vencimiento() or date.max,
+                r.get_fecha_recepcion(),
+                r.get_id(),
+            )
+        )
