@@ -140,8 +140,10 @@ class Deposito:
     def retiros_de_remesa(self, remesa):
         resultado = []
         for retiro in self.retiros.values():
+            remesa_participo = False
             for movimiento in retiro.get_movimientos():
                 if movimiento.get_remesa().get_id() == remesa.get_id():
-                    resultado.append(retiro)
-                    break
+                    remesa_participo = True
+            if remesa_participo:
+                resultado.append(retiro)
         return resultado
