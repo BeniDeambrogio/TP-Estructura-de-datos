@@ -21,9 +21,11 @@ def _deposito_con_escenario():
     deposito = Deposito()
     material = deposito.registrar_material("AL-01", "Aluminio AL-01", "kg", 10)
     proveedor = deposito.registrar_proveedor("P-1", "Metales SA", 5)
-    deposito.registrar_remesa("R-101", material, proveedor, 8, date(2026, 3, 2), date(2026, 3, 20))
-    deposito.registrar_remesa("R-102", material, proveedor, 12, date(2026, 3, 4), date(2026, 3, 30))
-    deposito.registrar_remesa("R-103", material, proveedor, 15, date(2026, 3, 5))
+    deposito.crear_remesa("R-101", material, proveedor, 8,
+                           fecha_recepcion=date(2026, 3, 2), fecha_vencimiento=date(2026, 3, 20))
+    deposito.crear_remesa("R-102", material, proveedor, 12,
+                           fecha_recepcion=date(2026, 3, 4), fecha_vencimiento=date(2026, 3, 30))
+    deposito.crear_remesa("R-103", material, proveedor, 15, fecha_recepcion=date(2026, 3, 5))
     return deposito, material
 
 
@@ -63,12 +65,13 @@ def test_registrar_proveedor_id_duplicado_lanza_value_error():
         deposito.registrar_proveedor("P-1", "otro", 1)
 
 
-def test_registrar_remesa_lo_guarda_y_genera_movimiento_ingreso():
+def test_crear_remesa_lo_guarda_y_genera_movimiento_ingreso():
     deposito = Deposito()
     material = deposito.registrar_material("AL-01", "Aluminio AL-01", "kg", 10)
     proveedor = deposito.registrar_proveedor("P-1", "Metales SA", 5)
 
-    remesa = deposito.registrar_remesa("R-101", material, proveedor, 8, date(2026, 3, 2), date(2026, 3, 20))
+    remesa = deposito.crear_remesa("R-101", material, proveedor, 8,
+                                    fecha_recepcion=date(2026, 3, 2), fecha_vencimiento=date(2026, 3, 20))
 
     assert deposito.get_remesas()["R-101"] is remesa
     ingresos = [m for m in deposito.get_movimientos() if isinstance(m, MovimientoIngreso)]
@@ -76,14 +79,36 @@ def test_registrar_remesa_lo_guarda_y_genera_movimiento_ingreso():
     assert ingresos[0].get_remesa() is remesa
 
 
-def test_registrar_remesa_id_duplicado_lanza_value_error():
+def test_crear_remesa_id_duplicado_lanza_value_error():
     deposito = Deposito()
     material = deposito.registrar_material("AL-01", "Aluminio AL-01", "kg", 10)
     proveedor = deposito.registrar_proveedor("P-1", "Metales SA", 5)
-    deposito.registrar_remesa("R-101", material, proveedor, 8, date(2026, 3, 2))
+    deposito.crear_remesa("R-101", material, proveedor, 8, fecha_recepcion=date(2026, 3, 2))
 
     with pytest.raises(ValueError):
-        deposito.registrar_remesa("R-101", material, proveedor, 1, date(2026, 3, 3))
+        deposito.crear_remesa("R-101", material, proveedor, 1, fecha_recepcion=date(2026, 3, 3))
+
+
+def test_crear_remesa_sin_fecha_recepcion_lanza_value_error():
+    deposito = Deposito()
+    material = deposito.registrar_material("AL-01", "Aluminio AL-01", "kg", 10)
+    proveedor = deposito.registrar_proveedor("P-1", "Metales SA", 5)
+
+    with pytest.raises(ValueError):
+        deposito.crear_remesa("R-101", material, proveedor, 8)
+
+
+def test_crear_remesa_guarda_datos_adicionales_no_modelados():
+    deposito = Deposito()
+    material = deposito.registrar_material("AL-01", "Aluminio AL-01", "kg", 10)
+    proveedor = deposito.registrar_proveedor("P-1", "Metales SA", 5)
+
+    remesa = deposito.crear_remesa("R-101", material, proveedor, 8,
+                                    fecha_recepcion=date(2026, 3, 2), lote="L-88", temperatura_recepcion=4)
+
+    assert remesa.obtener_dato("lote") == "L-88"
+    assert remesa.obtener_dato("temperatura_recepcion") == 4
+    assert remesa.obtener_dato("no_existe") is None
 
 
 # ---------- Existencias ----------
@@ -117,7 +142,7 @@ def test_materiales_a_reponer_incluye_material_bajo_el_punto():
     deposito = Deposito()
     material = deposito.registrar_material("AL-01", "Aluminio AL-01", "kg", 10)
     proveedor = deposito.registrar_proveedor("P-1", "Metales SA", 5)
-    deposito.registrar_remesa("R-1", material, proveedor, 5, date(2026, 3, 1))
+    deposito.crear_remesa("R-1", material, proveedor, 5, fecha_recepcion=date(2026, 3, 1))
 
     assert material in deposito.materiales_a_reponer()
 
@@ -126,7 +151,7 @@ def test_materiales_a_reponer_no_incluye_material_con_stock_suficiente():
     deposito = Deposito()
     material = deposito.registrar_material("AL-01", "Aluminio AL-01", "kg", 10)
     proveedor = deposito.registrar_proveedor("P-1", "Metales SA", 5)
-    deposito.registrar_remesa("R-1", material, proveedor, 20, date(2026, 3, 1))
+    deposito.crear_remesa("R-1", material, proveedor, 20, fecha_recepcion=date(2026, 3, 1))
 
     assert material not in deposito.materiales_a_reponer()
 
@@ -137,7 +162,7 @@ def test_retirar_con_una_sola_remesa():
     deposito = Deposito()
     material = deposito.registrar_material("AL-01", "Aluminio AL-01", "kg", 10)
     proveedor = deposito.registrar_proveedor("P-1", "Metales SA", 5)
-    remesa = deposito.registrar_remesa("R-1", material, proveedor, 20, date(2026, 3, 1))
+    remesa = deposito.crear_remesa("R-1", material, proveedor, 20, fecha_recepcion=date(2026, 3, 1))
 
     retiro = deposito.retirar(material, 5, date(2026, 3, 10))
 

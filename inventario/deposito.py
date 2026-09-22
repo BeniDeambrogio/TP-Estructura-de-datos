@@ -56,15 +56,29 @@ class Deposito:
         self.proveedores[id] = proveedor
         return proveedor
 
-    def registrar_remesa(self, id, material, proveedor, cantidad_recibida, fecha_recepcion, fecha_vencimiento=None):
+    def crear_remesa(self, id, material, proveedor, cantidad, **datos):
+        # fecha_recepcion es obligatoria para poder registrar la remesa y su
+        # movimiento de ingreso, aunque llegue por **datos y no como parametro
+        # fijo (para respetar la firma pedida por la catedra).
+        if "fecha_recepcion" not in datos:
+            raise ValueError("Debe indicarse fecha_recepcion")
+
         if id in self.remesas:
             raise ValueError(f"Ya existe una remesa con id {id}")
-        remesa = Remesa(id, material, proveedor, cantidad_recibida, fecha_recepcion, fecha_vencimiento)
+
+        fecha_recepcion = datos.pop("fecha_recepcion")
+        # RN13: fecha_vencimiento es opcional, default None si no se pasa.
+        fecha_vencimiento = datos.pop("fecha_vencimiento", None)
+        # Lo que sobra en datos (lote, numero de guia, temperatura de
+        # recepcion, etc.) queda guardado en la remesa sin que este metodo
+        # necesite conocer esos nombres de antemano.
+        remesa = Remesa(id, material, proveedor, cantidad, fecha_recepcion, fecha_vencimiento,
+                         datos_adicionales=datos)
         self.remesas[id] = remesa
 
         # RN23: registrar una remesa genera su movimiento de ingreso.
         id_movimiento = f"MOV-{len(self.movimientos) + 1}"
-        movimiento_ingreso = MovimientoIngreso(id_movimiento, fecha_recepcion, remesa, cantidad_recibida)
+        movimiento_ingreso = MovimientoIngreso(id_movimiento, fecha_recepcion, remesa, cantidad)
         self.movimientos.append(movimiento_ingreso)
 
         return remesa

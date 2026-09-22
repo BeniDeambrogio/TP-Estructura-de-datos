@@ -3,7 +3,8 @@ class Remesa:
 
     cantidad_remesas = 0
 
-    def __init__(self, id, material, proveedor, cantidad_recibida, fecha_recepcion, fecha_vencimiento=None):
+    def __init__(self, id, material, proveedor, cantidad_recibida, fecha_recepcion, fecha_vencimiento=None,
+                 datos_adicionales=None):
         self.id = id
         self.material = material
         self.proveedor = proveedor
@@ -12,6 +13,10 @@ class Remesa:
         self.saldo_disponible = self.cantidad_recibida
         self.fecha_recepcion = fecha_recepcion
         self.fecha_vencimiento = fecha_vencimiento
+        # Datos opcionales que no tienen atributo propio (lote, numero de guia,
+        # temperatura de recepcion, etc.). None nunca se usa como default mutable:
+        # si no llega nada, se crea un diccionario vacio nuevo aca adentro.
+        self.datos_adicionales = datos_adicionales if datos_adicionales is not None else {}
         Remesa.cantidad_remesas += 1
 
     # ---------- Getters ----------
@@ -35,6 +40,9 @@ class Remesa:
 
     def get_fecha_vencimiento(self):
         return self.fecha_vencimiento
+
+    def obtener_dato(self, clave, valor_por_defecto=None):
+        return self.datos_adicionales.get(clave, valor_por_defecto)
 
     # ---------- Metodo de CLASE ----------
     @classmethod
