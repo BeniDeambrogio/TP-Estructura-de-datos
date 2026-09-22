@@ -15,21 +15,13 @@ los pedidos.
 
 ## Estado actual
 
-Actualmente, el proyecto aún esta en una etapa inicial. Hasta el momento, realizamos el UML,
-y acorde al mismo, creamos las clases correspondientes. Incluimos relaciones de herencia tanto
-en las clases Movimiento con MovimientoIngreso y MovimientoRetiro, como en PoliticaConsumo con 
-PoliticaFEFO. También, ya codeamos algunos metodos simples en algunas de las clases. Otros metodos,
-en clases como Deposito, reconocemos que requieren mas conocimientos teóricos de la materia que 
-todavia no tenemos. Además, ya estan todos los atributos y todos los setters y getters de todas 
-las clases. Priorizamos el hecho de no utilizar herramientas que todavía no hayamos visto en la 
-parte teórica de la materia.
+Actualmente, el proyecto ya esta completo acorde a las reglas de negocio. Incluimos relaciones de herencia tanto en las clases Movimiento con MovimientoIngreso y MovimientoRetiro, como en PoliticaConsumo con PoliticaFEFO. También, ya implementamos los metodos de Deposito, que coordina el programa, utilizando diccionarios para registrar y consultar. Además, usamos la funcion lambda sorted() en PoliticaFEFO, de modo que la politica ya se puede aplicar el criterio FEFO completo. El ultimo cambio que realizamos fue cambiar la función registar_remesa por crear_remesa usando kwargs que sirve para agregar datos adicionales sin cambiar la firma, que surgio a partir de una consigna dada por la catedra. También, incorporamos una serie de pytests repartidos en 8 archivos que corresponden a las clases para todos los metodos y todos corren bien.
 
 ## Diagrama de clases
 
 Ver `Diagrama.jpeg` en la raíz del repositorio.
 
-Muestra las relaciones entre las clases. Estas relaciones pueden ser de composicion, asociación
-o herencia, lo cual esta indicado mediante el tipo de flecha utilizado.
+Muestra las relaciones entre las clases. Estas relaciones pueden ser de composicion, asociación o herencia, lo cual esta indicado mediante el tipo de flecha utilizado.
 
 ## Estructura del proyecto
 
@@ -66,6 +58,4 @@ o herencia, lo cual esta indicado mediante el tipo de flecha utilizado.
 
 ## Qué falta y por qué
 
-Por ahora no queda ningún método sin implementar del alcance original. Lo
-único pendiente es reemplazar los `ValueError` genéricos por excepciones
-propias del dominio, si la cátedra lo pide en una próxima etapa.
+Por ahora no queda ningún método sin implementar del alcance original. Lo único pendiente es reemplazar los `ValueError` genéricos por excepciones propias del dominio si lo vemos necesario. También dependiendo de lo que nos den de teoría en las siguientes clases, evaluaremos si son necesarios cambios dentro del programa.
