@@ -53,13 +53,19 @@ o herencia, lo cual esta indicado mediante el tipo de flecha utilizado.
 - `Remesa.esta_vencida()`, `es_utilizable()`, `consumir()` (sin validar saldo todavía)
 - `RenglonPedido.subtotal()`, `Pedido.agregar_renglon()`, `Pedido.importe_total()`
 - `Retiro.agregar_movimiento()`, `Retiro.cantidad_consumida()`
+- Excepciones (`raise ValueError`): validadores (`validar_cantidad`,
+  `validar_punto_reposicion`, `validar_plazo_entrega`) y validación de saldo
+  en `Remesa.consumir()`
+- Todos los métodos de `Deposito` usando diccionarios: `registrar_material`,
+  `registrar_proveedor`, `crear_remesa`, `existencia_fisica`,
+  `existencia_disponible`, `retirar()`, `materiales_a_reponer()`,
+  `remesas_de_retiro()`, `retiros_de_remesa()`
+- `PoliticaFEFO.ordenar()` con `sorted()` y una función `lambda`
+- `Deposito.crear_remesa()` usando `**kwargs` para datos opcionales
+  (reemplaza al anterior `registrar_remesa`)
 
 ## Qué falta y por qué
-- **Depende de diccionarios** (no vistos aún en la materia): todos los métodos
-  de `Deposito` (registrar materiales/proveedores/remesas, calcular existencias,
-  reposición, trazabilidad, `retirar()`)
-- **Depende de excepciones (`raise`)** (vistas recién, sin practicar todavía):
-  los validadores estáticos (`validar_cantidad`, `validar_punto_reposicion`,
-  `validar_plazo_entrega`) y la validación de saldo en `Remesa.consumir()`
-- **Depende de `sorted()`/lambda** (visto recién, sin practicar todavía):
-  `PoliticaFEFO.ordenar()`
+
+Por ahora no queda ningún método sin implementar del alcance original. Lo
+único pendiente es reemplazar los `ValueError` genéricos por excepciones
+propias del dominio, si la cátedra lo pide en una próxima etapa.
