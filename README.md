@@ -15,7 +15,7 @@ los pedidos.
 
 ## Estado actual
 
-Actualmente, el proyecto ya esta completo acorde a las reglas de negocio. Incluimos relaciones de herencia tanto en las clases Movimiento con MovimientoIngreso y MovimientoRetiro, como en PoliticaConsumo con PoliticaFEFO. También, ya implementamos los metodos de Deposito, que coordina el programa, utilizando diccionarios para registrar y consultar. Además, usamos la funcion lambda sorted() en PoliticaFEFO, de modo que la politica ya se puede aplicar el criterio FEFO completo. El ultimo cambio que realizamos fue cambiar la función registar_remesa por crear_remesa usando kwargs que sirve para agregar datos adicionales sin cambiar la firma, que surgio a partir de una consigna dada por la catedra. También, incorporamos una serie de pytests repartidos en 8 archivos que corresponden a las clases para todos los metodos y todos corren bien.
+Actualmente, el proyecto ya esta completo acorde a las reglas de negocio. Incluimos relaciones de herencia tanto en las clases Movimiento con MovimientoIngreso y MovimientoRetiro, como en PoliticaConsumo con PoliticaFEFO. Utilizamos excepciones para validar los datos necesarios, mas que nada usando raise con ValueError. También, ya implementamos los metodos de Deposito, que coordina el programa, utilizando diccionarios para registrar y consultar. Además, usamos la funcion lambda sorted() en PoliticaFEFO, de modo que la politica ya se puede aplicar el criterio FEFO completo. El ultimo cambio que realizamos fue cambiar la función registar_remesa por crear_remesa usando kwargs que sirve para agregar datos adicionales sin cambiar la firma, que surgio a partir de una consigna dada por la catedra. También, incorporamos una serie de pytests repartidos en 8 archivos que corresponden a las clases para todos los metodos y todos corren bien.
 
 ## Diagrama de clases
 
@@ -37,24 +37,17 @@ Muestra las relaciones entre las clases. Estas relaciones pueden ser de composic
 
 ## Qué está implementado
 
-- Herencia real: `MovimientoIngreso`/`MovimientoRetiro` heredan de `Movimiento`;
-  `PoliticaFEFO` hereda de `PoliticaConsumo`
+- Herencia real: `MovimientoIngreso`/`MovimientoRetiro` heredan de `Movimiento`;`PoliticaFEFO` hereda de `PoliticaConsumo`
 - Polimorfismo: `tipo()` sobreescrito en cada subclase de `Movimiento`
 - Getters, setters y contadores de clase de todas las clases
 - `Material.requiere_reposicion()`
-- `Remesa.esta_vencida()`, `es_utilizable()`, `consumir()` (sin validar saldo todavía)
+- `Remesa.esta_vencida()`, `es_utilizable()`, `consumir()`
 - `RenglonPedido.subtotal()`, `Pedido.agregar_renglon()`, `Pedido.importe_total()`
 - `Retiro.agregar_movimiento()`, `Retiro.cantidad_consumida()`
-- Excepciones (`raise ValueError`): validadores (`validar_cantidad`,
-  `validar_punto_reposicion`, `validar_plazo_entrega`) y validación de saldo
-  en `Remesa.consumir()`
-- Todos los métodos de `Deposito` usando diccionarios: `registrar_material`,
-  `registrar_proveedor`, `crear_remesa`, `existencia_fisica`,
-  `existencia_disponible`, `retirar()`, `materiales_a_reponer()`,
-  `remesas_de_retiro()`, `retiros_de_remesa()`
+- Excepciones (`raise ValueError`): validadores (`validar_cantidad`,`validar_punto_reposicion`, `validar_plazo_entrega`) y validación de saldo en `Remesa.consumir()`
+- Todos los métodos de `Deposito` usando diccionarios: `registrar_material`, `registrar_proveedor`, `crear_remesa`, `existencia_fisica`,  `existencia_disponible`, `retirar()`, `materiales_a_reponer()`, `remesas_de_retiro()`, `retiros_de_remesa()`
 - `PoliticaFEFO.ordenar()` con `sorted()` y una función `lambda`
-- `Deposito.crear_remesa()` usando `**kwargs` para datos opcionales
-  (reemplaza al anterior `registrar_remesa`)
+- `Deposito.crear_remesa()` usando `**kwargs` para datos opcionales (reemplaza al anterior `registrar_remesa`)
 
 ## Qué falta y por qué
 
