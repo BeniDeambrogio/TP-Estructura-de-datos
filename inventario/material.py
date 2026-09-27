@@ -1,3 +1,6 @@
+from .excepciones import CantidadInvalidaError
+
+
 class Material:
     """
     Representa un tipo de insumo utilizado por la empresa
@@ -39,7 +42,7 @@ class Material:
     @staticmethod
     def validar_punto_reposicion(valor):
         if valor <= 0:
-            raise ValueError("El punto de reposicion debe ser mayor que cero")
+            raise CantidadInvalidaError("El punto de reposicion debe ser mayor que cero")
         return valor
 
     # ---------- Metodo de INSTANCIA ----------

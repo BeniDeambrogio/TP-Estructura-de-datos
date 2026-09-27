@@ -6,6 +6,13 @@ from .politica_consumo import PoliticaConsumo, PoliticaFEFO
 from .retiro import Retiro
 from .pedido import Pedido, RenglonPedido
 from .deposito import Deposito
+from .excepciones import (
+    ErrorInventario,
+    CantidadInvalidaError,
+    StockInsuficienteError,
+    IdDuplicadoError,
+    DatoFaltanteError,
+)
 
 __all__ = [
     "Material",
@@ -20,4 +27,9 @@ __all__ = [
     "Pedido",
     "RenglonPedido",
     "Deposito",
+    "ErrorInventario",
+    "CantidadInvalidaError",
+    "StockInsuficienteError",
+    "IdDuplicadoError",
+    "DatoFaltanteError",
 ]

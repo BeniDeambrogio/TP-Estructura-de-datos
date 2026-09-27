@@ -1,3 +1,6 @@
+from .excepciones import CantidadInvalidaError
+
+
 class Movimiento:
     """
     Representa un hecho ocurrido sobre el inventario (un ingreso o un
@@ -48,7 +51,7 @@ class MovimientoIngreso(Movimiento):
     @staticmethod
     def validar_cantidad(valor):
         if valor <= 0:
-            raise ValueError("La cantidad debe ser mayor que cero")
+            raise CantidadInvalidaError("La cantidad debe ser mayor que cero")
         return valor
 
     # ---------- Metodo de INSTANCIA (polimorfismo) ----------
@@ -80,7 +83,7 @@ class MovimientoRetiro(Movimiento):
     @staticmethod
     def validar_cantidad(valor):
         if valor <= 0:
-            raise ValueError("La cantidad debe ser mayor que cero")
+            raise CantidadInvalidaError("La cantidad debe ser mayor que cero")
         return valor
 
     # ---------- Metodo de INSTANCIA (polimorfismo) ----------

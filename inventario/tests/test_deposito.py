@@ -2,7 +2,16 @@ from datetime import date
 
 import pytest
 
-from inventario import Deposito, Material, MovimientoIngreso, PoliticaFEFO, Proveedor
+from inventario import (
+    DatoFaltanteError,
+    Deposito,
+    IdDuplicadoError,
+    Material,
+    MovimientoIngreso,
+    PoliticaFEFO,
+    Proveedor,
+    StockInsuficienteError,
+)
 
 
 def test_init_crea_colecciones_vacias_y_politica_fefo():
@@ -40,11 +49,11 @@ def test_registrar_material_lo_guarda_y_lo_devuelve():
     assert deposito.get_materiales()["AL-01"] is material
 
 
-def test_registrar_material_id_duplicado_lanza_value_error():
+def test_registrar_material_id_duplicado_lanza_id_duplicado_error():
     deposito = Deposito()
     deposito.registrar_material("AL-01", "Aluminio AL-01", "kg", 10)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(IdDuplicadoError):
         deposito.registrar_material("AL-01", "otro", "kg", 5)
 
 
@@ -57,11 +66,11 @@ def test_registrar_proveedor_lo_guarda_y_lo_devuelve():
     assert deposito.get_proveedores()["P-1"] is proveedor
 
 
-def test_registrar_proveedor_id_duplicado_lanza_value_error():
+def test_registrar_proveedor_id_duplicado_lanza_id_duplicado_error():
     deposito = Deposito()
     deposito.registrar_proveedor("P-1", "Metales SA", 5)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(IdDuplicadoError):
         deposito.registrar_proveedor("P-1", "otro", 1)
 
 
@@ -79,22 +88,22 @@ def test_crear_remesa_lo_guarda_y_genera_movimiento_ingreso():
     assert ingresos[0].get_remesa() is remesa
 
 
-def test_crear_remesa_id_duplicado_lanza_value_error():
+def test_crear_remesa_id_duplicado_lanza_id_duplicado_error():
     deposito = Deposito()
     material = deposito.registrar_material("AL-01", "Aluminio AL-01", "kg", 10)
     proveedor = deposito.registrar_proveedor("P-1", "Metales SA", 5)
     deposito.crear_remesa("R-101", material, proveedor, 8, fecha_recepcion=date(2026, 3, 2))
 
-    with pytest.raises(ValueError):
+    with pytest.raises(IdDuplicadoError):
         deposito.crear_remesa("R-101", material, proveedor, 1, fecha_recepcion=date(2026, 3, 3))
 
 
-def test_crear_remesa_sin_fecha_recepcion_lanza_value_error():
+def test_crear_remesa_sin_fecha_recepcion_lanza_dato_faltante_error():
     deposito = Deposito()
     material = deposito.registrar_material("AL-01", "Aluminio AL-01", "kg", 10)
     proveedor = deposito.registrar_proveedor("P-1", "Metales SA", 5)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(DatoFaltanteError):
         deposito.crear_remesa("R-101", material, proveedor, 8)
 
 
@@ -196,7 +205,7 @@ def test_retirar_usa_remesa_sin_vencimiento_cuando_las_otras_vencieron():
 def test_retirar_rechaza_si_no_alcanza_la_existencia_disponible():
     deposito, material = _deposito_con_escenario()
 
-    with pytest.raises(ValueError):
+    with pytest.raises(StockInsuficienteError):
         deposito.retirar(material, 999, date(2026, 3, 10))
 
 
@@ -208,7 +217,7 @@ def test_retirar_rechazado_no_modifica_el_inventario():
     }
     cantidad_movimientos_antes = len(deposito.get_movimientos())
 
-    with pytest.raises(ValueError):
+    with pytest.raises(StockInsuficienteError):
         deposito.retirar(material, 999, date(2026, 3, 10))
 
     saldos_despues = {

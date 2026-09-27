@@ -1,3 +1,6 @@
+from .excepciones import CantidadInvalidaError
+
+
 class Proveedor:
     """Representa a una empresa que suministra materiales."""
 
@@ -32,5 +35,5 @@ class Proveedor:
     @staticmethod
     def validar_plazo_entrega(valor):
         if valor <= 0:
-            raise ValueError("El plazo de entrega debe ser mayor que cero")
+            raise CantidadInvalidaError("El plazo de entrega debe ser mayor que cero")
         return valor

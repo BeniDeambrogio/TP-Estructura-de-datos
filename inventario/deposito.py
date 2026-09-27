@@ -6,6 +6,7 @@ from .remesa import Remesa
 from .movimiento import MovimientoIngreso, MovimientoRetiro
 from .politica_consumo import PoliticaFEFO
 from .retiro import Retiro
+from .excepciones import CantidadInvalidaError, StockInsuficienteError, IdDuplicadoError, DatoFaltanteError
 
 
 class Deposito:
@@ -44,14 +45,14 @@ class Deposito:
     # ---------- Registro de entidades ----------
     def registrar_material(self, id, nombre, unidad_medida, punto_reposicion):
         if id in self.materiales:
-            raise ValueError(f"Ya existe un material con id {id}")
+            raise IdDuplicadoError(f"Ya existe un material con id {id}")
         material = Material(id, nombre, unidad_medida, punto_reposicion)
         self.materiales[id] = material
         return material
 
     def registrar_proveedor(self, id, nombre, plazo_entrega_dias):
         if id in self.proveedores:
-            raise ValueError(f"Ya existe un proveedor con id {id}")
+            raise IdDuplicadoError(f"Ya existe un proveedor con id {id}")
         proveedor = Proveedor(id, nombre, plazo_entrega_dias)
         self.proveedores[id] = proveedor
         return proveedor
@@ -61,10 +62,10 @@ class Deposito:
         # movimiento de ingreso, aunque llegue por **datos y no como parametro
         # fijo (para respetar la firma pedida por la catedra).
         if "fecha_recepcion" not in datos:
-            raise ValueError("Debe indicarse fecha_recepcion")
+            raise DatoFaltanteError("Debe indicarse fecha_recepcion")
 
         if id in self.remesas:
-            raise ValueError(f"Ya existe una remesa con id {id}")
+            raise IdDuplicadoError(f"Ya existe una remesa con id {id}")
 
         fecha_recepcion = datos.pop("fecha_recepcion")
         # RN13: fecha_vencimiento es opcional, default None si no se pasa.
@@ -101,12 +102,12 @@ class Deposito:
     # ---------- Retiros ----------
     def retirar(self, material, cantidad, fecha):
         if cantidad <= 0:
-            raise ValueError("La cantidad a retirar debe ser mayor que cero")
+            raise CantidadInvalidaError("La cantidad a retirar debe ser mayor que cero")
 
         # RN18: se valida ANTES de tocar nada del inventario.
         disponible = self.existencia_disponible(material, fecha)
         if disponible < cantidad:
-            raise ValueError("La existencia disponible es insuficiente para realizar el retiro")
+            raise StockInsuficienteError("La existencia disponible es insuficiente para realizar el retiro")
 
         remesas_utilizables = [
             remesa for remesa in self.remesas.values()

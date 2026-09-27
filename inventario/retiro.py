@@ -1,3 +1,6 @@
+from .excepciones import CantidadInvalidaError
+
+
 class Retiro:
     """Representa la solicitud de retiro de un material para una fecha."""
 
@@ -36,7 +39,7 @@ class Retiro:
     @staticmethod
     def validar_cantidad(valor):
         if valor <= 0:
-            raise ValueError("La cantidad debe ser mayor que cero")
+            raise CantidadInvalidaError("La cantidad debe ser mayor que cero")
         return valor
 
     # ---------- Metodos de INSTANCIA ----------

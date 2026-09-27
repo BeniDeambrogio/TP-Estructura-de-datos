@@ -1,3 +1,6 @@
+from .excepciones import CantidadInvalidaError, StockInsuficienteError
+
+
 class Remesa:
     """Representa una partida especifica recibida de un proveedor."""
 
@@ -53,7 +56,7 @@ class Remesa:
     @staticmethod
     def validar_cantidad(valor):
         if valor <= 0:
-            raise ValueError("La cantidad debe ser mayor que cero")
+            raise CantidadInvalidaError("La cantidad debe ser mayor que cero")
         return valor
 
     # ---------- Metodos de INSTANCIA ----------
@@ -67,7 +70,7 @@ class Remesa:
 
     def consumir(self, cantidad):
         if cantidad <= 0:
-            raise ValueError("La cantidad a consumir debe ser mayor que cero")
+            raise CantidadInvalidaError("La cantidad a consumir debe ser mayor que cero")
         if cantidad > self.saldo_disponible:
-            raise ValueError("No hay saldo disponible suficiente en la remesa")
+            raise StockInsuficienteError("No hay saldo disponible suficiente en la remesa")
         self.saldo_disponible -= cantidad

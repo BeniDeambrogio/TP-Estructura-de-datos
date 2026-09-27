@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+from .excepciones import CantidadInvalidaError
+
 
 class RenglonPedido:
     """Cantidad solicitada de un material junto con el precio acordado."""
@@ -23,7 +25,7 @@ class RenglonPedido:
     @staticmethod
     def validar_cantidad(valor):
         if valor <= 0:
-            raise ValueError("La cantidad debe ser mayor que cero")
+            raise CantidadInvalidaError("La cantidad debe ser mayor que cero")
         return valor
 
     # ---------- Metodo de INSTANCIA ----------
