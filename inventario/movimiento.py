@@ -31,6 +31,16 @@ class Movimiento:
     def tipo(self):
         pass
 
+    # ---------- Persistencia ----------
+    def a_dict(self):
+        return {
+            "id": self.id,
+            "tipo": self.tipo(),
+            "fecha": self.fecha.isoformat(),
+            "remesa": self.remesa.get_id(),
+            "cantidad": self.cantidad,
+        }
+
 
 class MovimientoIngreso(Movimiento):
     """Movimiento generado al registrar el ingreso de una remesa."""
@@ -89,3 +99,10 @@ class MovimientoRetiro(Movimiento):
     # ---------- Metodo de INSTANCIA (polimorfismo) ----------
     def tipo(self):
         return "RETIRO"
+
+    # ---------- Persistencia ----------
+    def a_dict(self):
+        # Extiende el diccionario de la clase base con el retiro al que pertenece.
+        datos = super().a_dict()
+        datos["retiro"] = self.retiro.get_id()
+        return datos

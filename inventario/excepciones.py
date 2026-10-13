@@ -16,3 +16,7 @@ class IdDuplicadoError(ErrorInventario):
 
 class DatoFaltanteError(ErrorInventario):
     """Falta un dato obligatorio entre los argumentos opcionales (**kwargs)."""
+
+
+class EstructuraVaciaError(ErrorInventario):
+    """Se intento consultar o retirar un elemento de una estructura vacia."""

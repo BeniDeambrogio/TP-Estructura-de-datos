@@ -1,3 +1,5 @@
+from datetime import date
+
 from .excepciones import CantidadInvalidaError, StockInsuficienteError
 
 
@@ -74,3 +76,30 @@ class Remesa:
         if cantidad > self.saldo_disponible:
             raise StockInsuficienteError("No hay saldo disponible suficiente en la remesa")
         self.saldo_disponible -= cantidad
+
+    # ---------- Persistencia ----------
+    def a_dict(self):
+        # Material y proveedor se guardan por id: al cargar se buscan entre
+        # los ya reconstruidos para que todas las remesas apunten al mismo objeto.
+        return {
+            "id": self.id,
+            "material": self.material.get_id(),
+            "proveedor": self.proveedor.get_id(),
+            "cantidad_recibida": self.cantidad_recibida,
+            "saldo_disponible": self.saldo_disponible,
+            "fecha_recepcion": self.fecha_recepcion.isoformat(),
+            "fecha_vencimiento": self.fecha_vencimiento.isoformat() if self.fecha_vencimiento else None,
+            "datos_adicionales": self.datos_adicionales,
+        }
+
+    @classmethod
+    def desde_dict(cls, datos, materiales, proveedores):
+        fecha_vencimiento = datos["fecha_vencimiento"]
+        remesa = cls(datos["id"], materiales[datos["material"]], proveedores[datos["proveedor"]],
+                     datos["cantidad_recibida"], date.fromisoformat(datos["fecha_recepcion"]),
+                     date.fromisoformat(fecha_vencimiento) if fecha_vencimiento else None,
+                     datos_adicionales=datos["datos_adicionales"])
+        # El constructor arranca con saldo = cantidad recibida (RN12); al
+        # cargar se restaura lo que ya se habia consumido.
+        remesa.saldo_disponible = datos["saldo_disponible"]
+        return remesa

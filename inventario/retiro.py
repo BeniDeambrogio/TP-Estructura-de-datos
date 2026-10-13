@@ -1,3 +1,5 @@
+from datetime import date
+
 from .excepciones import CantidadInvalidaError
 
 
@@ -51,3 +53,19 @@ class Retiro:
         for movimiento in self.movimientos:
             total += movimiento.get_cantidad()
         return total
+
+    # ---------- Persistencia ----------
+    def a_dict(self):
+        # Los movimientos no se guardan aca: se guardan una sola vez en el
+        # deposito y al cargar se vuelven a asociar a su retiro.
+        return {
+            "id": self.id,
+            "material": self.material.get_id(),
+            "fecha": self.fecha.isoformat(),
+            "cantidad_solicitada": self.cantidad_solicitada,
+        }
+
+    @classmethod
+    def desde_dict(cls, datos, materiales):
+        return cls(datos["id"], materiales[datos["material"]], date.fromisoformat(datos["fecha"]),
+                   datos["cantidad_solicitada"])

@@ -5,6 +5,7 @@ import pytest
 from inventario import (
     DatoFaltanteError,
     Deposito,
+    EstructuraVaciaError,
     IdDuplicadoError,
     Material,
     MovimientoIngreso,
@@ -247,3 +248,83 @@ def test_retiros_de_remesa_devuelve_los_retiros_correctos():
     retiros = deposito.retiros_de_remesa(deposito.get_remesas()["R-102"])
 
     assert retiros == [retiro1, retiro2]
+
+
+# ---------- Indice de remesas por material ----------
+
+def test_crear_remesa_la_agrega_al_indice_de_su_material():
+    deposito, material = _deposito_con_escenario()
+    otro = deposito.registrar_material("CU-01", "Cobre CU-01", "kg", 5)
+    proveedor = deposito.get_proveedores()["P-1"]
+    deposito.crear_remesa("R-201", otro, proveedor, 4, fecha_recepcion=date(2026, 3, 6))
+
+    assert [r.get_id() for r in deposito.remesas_de_material(material)] == ["R-101", "R-102", "R-103"]
+    assert [r.get_id() for r in deposito.remesas_de_material(otro)] == ["R-201"]
+
+
+def test_remesas_de_material_sin_remesas_devuelve_lista_vacia():
+    deposito = Deposito()
+    material = deposito.registrar_material("AL-01", "Aluminio AL-01", "kg", 10)
+
+    assert deposito.remesas_de_material(material) == []
+    assert deposito.existencia_fisica(material) == 0
+
+
+# ---------- Solicitudes de retiro (cola) ----------
+
+def test_solicitar_retiro_encola_sin_tocar_el_inventario():
+    deposito, material = _deposito_con_escenario()
+
+    solicitud = deposito.solicitar_retiro(material, 10, date(2026, 3, 10))
+
+    assert solicitud.get_id() == "SOL-1"
+    assert deposito.solicitudes_pendientes() == 1
+    assert deposito.existencia_fisica(material) == 35
+    assert deposito.get_retiros() == {}
+
+
+def test_atender_siguiente_respeta_orden_de_llegada():
+    deposito, material = _deposito_con_escenario()
+    deposito.solicitar_retiro(material, 5, date(2026, 3, 10))
+    deposito.solicitar_retiro(material, 7, date(2026, 3, 10))
+
+    primero = deposito.atender_siguiente(date(2026, 3, 10))
+    segundo = deposito.atender_siguiente(date(2026, 3, 10))
+
+    assert primero.get_cantidad_solicitada() == 5
+    assert segundo.get_cantidad_solicitada() == 7
+    assert deposito.solicitudes_pendientes() == 0
+    assert deposito.existencia_fisica(material) == 35 - 12
+
+
+def test_atender_siguiente_sin_stock_deja_la_solicitud_primera():
+    deposito, material = _deposito_con_escenario()
+    deposito.solicitar_retiro(material, 50, date(2026, 3, 10))  # hay 35
+    deposito.solicitar_retiro(material, 1, date(2026, 3, 10))
+
+    resultado = deposito.atender_siguiente(date(2026, 3, 10))
+
+    assert resultado is None
+    assert deposito.solicitudes_pendientes() == 2
+    assert deposito.get_solicitudes().frente().get_cantidad() == 50
+    assert deposito.existencia_fisica(material) == 35
+
+
+def test_solicitud_bloqueada_se_atiende_al_llegar_una_remesa():
+    deposito, material = _deposito_con_escenario()
+    deposito.solicitar_retiro(material, 50, date(2026, 3, 10))
+    assert deposito.atender_siguiente(date(2026, 3, 10)) is None
+
+    proveedor = deposito.get_proveedores()["P-1"]
+    deposito.crear_remesa("R-104", material, proveedor, 20, fecha_recepcion=date(2026, 3, 11))
+    retiro = deposito.atender_siguiente(date(2026, 3, 11))
+
+    assert retiro.get_cantidad_solicitada() == 50
+    assert deposito.solicitudes_pendientes() == 0
+
+
+def test_atender_siguiente_sin_solicitudes_lanza_estructura_vacia_error():
+    deposito = Deposito()
+
+    with pytest.raises(EstructuraVaciaError):
+        deposito.atender_siguiente(date(2026, 3, 10))

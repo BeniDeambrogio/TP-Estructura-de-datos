@@ -37,3 +37,15 @@ class Proveedor:
         if valor <= 0:
             raise CantidadInvalidaError("El plazo de entrega debe ser mayor que cero")
         return valor
+
+    # ---------- Persistencia ----------
+    def a_dict(self):
+        return {
+            "id": self.id,
+            "nombre": self.nombre,
+            "plazo_entrega_dias": self.plazo_entrega_dias,
+        }
+
+    @classmethod
+    def desde_dict(cls, datos):
+        return cls(datos["id"], datos["nombre"], datos["plazo_entrega_dias"])

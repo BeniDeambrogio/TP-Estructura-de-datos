@@ -5,6 +5,8 @@ from .movimiento import Movimiento, MovimientoIngreso, MovimientoRetiro
 from .politica_consumo import PoliticaConsumo, PoliticaFEFO
 from .retiro import Retiro
 from .pedido import Pedido, RenglonPedido
+from .solicitud_retiro import SolicitudRetiro
+from .estructuras import Nodo, Cola
 from .deposito import Deposito
 from .excepciones import (
     ErrorInventario,
@@ -12,6 +14,7 @@ from .excepciones import (
     StockInsuficienteError,
     IdDuplicadoError,
     DatoFaltanteError,
+    EstructuraVaciaError,
 )
 
 __all__ = [
@@ -26,10 +29,14 @@ __all__ = [
     "Retiro",
     "Pedido",
     "RenglonPedido",
+    "SolicitudRetiro",
+    "Nodo",
+    "Cola",
     "Deposito",
     "ErrorInventario",
     "CantidadInvalidaError",
     "StockInsuficienteError",
     "IdDuplicadoError",
     "DatoFaltanteError",
+    "EstructuraVaciaError",
 ]

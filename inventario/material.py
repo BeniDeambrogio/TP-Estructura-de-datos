@@ -48,3 +48,16 @@ class Material:
     # ---------- Metodo de INSTANCIA ----------
     def requiere_reposicion(self, existencia_disponible):
         return existencia_disponible < self.punto_reposicion
+
+    # ---------- Persistencia ----------
+    def a_dict(self):
+        return {
+            "id": self.id,
+            "nombre": self.nombre,
+            "unidad_medida": self.unidad_medida,
+            "punto_reposicion": self.punto_reposicion,
+        }
+
+    @classmethod
+    def desde_dict(cls, datos):
+        return cls(datos["id"], datos["nombre"], datos["unidad_medida"], datos["punto_reposicion"])
