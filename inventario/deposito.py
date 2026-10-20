@@ -7,8 +7,9 @@ from .remesa import Remesa
 from .movimiento import MovimientoIngreso, MovimientoRetiro
 from .politica_consumo import PoliticaFEFO
 from .retiro import Retiro
+from .pedido import Pedido
 from .solicitud_retiro import SolicitudRetiro
-from .estructuras import Cola
+from .estructuras import Cola, ListaEnlazadaOrdenada
 from .excepciones import CantidadInvalidaError, StockInsuficienteError, IdDuplicadoError, DatoFaltanteError
 
 
@@ -25,8 +26,11 @@ class Deposito:
         self.movimientos = []
         self.retiros = {}
         self.politica_consumo = PoliticaFEFO()
-        # Indice {id_material: [remesas]} para no recorrer las remesas de
-        # todos los materiales cada vez que se consulta uno solo.
+        self.pedidos = {}
+        # Indice {id_material: ListaEnlazadaOrdenada de remesas}. Evita recorrer
+        # las remesas de todos los materiales al consultar uno solo, y cada lista
+        # ya queda ordenada segun la politica de consumo (el primero es el que
+        # se consume antes), asi retirar() no tiene que ordenar en cada retiro.
         self.remesas_por_material = {}
         # Solicitudes de retiro en espera, atendidas por orden de llegada (FIFO).
         self.solicitudes = Cola()
@@ -53,6 +57,9 @@ class Deposito:
 
     def get_solicitudes(self):
         return self.solicitudes
+
+    def get_pedidos(self):
+        return self.pedidos
 
     # ---------- Registro de entidades ----------
     def registrar_material(self, id, nombre, unidad_medida, punto_reposicion):
@@ -88,7 +95,7 @@ class Deposito:
         remesa = Remesa(id, material, proveedor, cantidad, fecha_recepcion, fecha_vencimiento,
                          datos_adicionales=datos)
         self.remesas[id] = remesa
-        self.remesas_por_material.setdefault(material.get_id(), []).append(remesa)
+        self._indexar_remesa(remesa)
 
         # RN23: registrar una remesa genera su movimiento de ingreso.
         id_movimiento = f"MOV-{len(self.movimientos) + 1}"
@@ -98,8 +105,18 @@ class Deposito:
         return remesa
 
     # ---------- Consultas de existencias ----------
+    def _indexar_remesa(self, remesa):
+        id_material = remesa.get_material().get_id()
+        if id_material not in self.remesas_por_material:
+            self.remesas_por_material[id_material] = ListaEnlazadaOrdenada(self.politica_consumo.clave_orden)
+        self.remesas_por_material[id_material].insertar(remesa)
+
     def remesas_de_material(self, material):
-        return self.remesas_por_material.get(material.get_id(), [])
+        """Remesas del material, ya ordenadas segun la politica de consumo."""
+        lista = self.remesas_por_material.get(material.get_id())
+        if lista is None:
+            return []
+        return lista.a_lista()
 
     def existencia_fisica(self, material):
         total = 0
@@ -124,10 +141,11 @@ class Deposito:
         if disponible < cantidad:
             raise StockInsuficienteError("La existencia disponible es insuficiente para realizar el retiro")
 
-        remesas_utilizables = [
+        # remesas_de_material ya viene ordenada por la politica (la lista enlazada
+        # ordenada la mantiene asi), solo hay que quedarse con las utilizables.
+        remesas_ordenadas = [
             remesa for remesa in self.remesas_de_material(material) if remesa.es_utilizable(fecha)
         ]
-        remesas_ordenadas = self.politica_consumo.ordenar(remesas_utilizables)
 
         # Se calcula la distribucion sin modificar todavia ninguna remesa,
         # para garantizar RN22 si algo fallara antes de este punto.
@@ -152,6 +170,14 @@ class Deposito:
 
         self.retiros[id_retiro] = retiro
         return retiro
+
+    # ---------- Pedidos a proveedores ----------
+    def crear_pedido(self, id, proveedor):
+        if id in self.pedidos:
+            raise IdDuplicadoError(f"Ya existe un pedido con id {id}")
+        pedido = Pedido(id, proveedor)
+        self.pedidos[id] = pedido
+        return pedido
 
     # ---------- Solicitudes de retiro (cola FIFO) ----------
     def solicitar_retiro(self, material, cantidad, fecha):
@@ -205,13 +231,18 @@ class Deposito:
             "proveedores": [p.a_dict() for p in self.proveedores.values()],
             "remesas": [r.a_dict() for r in self.remesas.values()],
             "retiros": [r.a_dict() for r in self.retiros.values()],
+            "pedidos": [p.a_dict() for p in self.pedidos.values()],
             "movimientos": [m.a_dict() for m in self.movimientos],
             # Se guardan del frente al fin para respetar el orden FIFO al cargar.
             "solicitudes": [s.a_dict() for s in self.solicitudes.a_lista()],
             "cantidad_solicitudes": self.cantidad_solicitudes,
         }
+        # Primero se arma todo el texto y recien despues se abre el archivo: si
+        # algo no se puede escribir como JSON falla antes de tocar el archivo,
+        # que no queda a medio escribir ni se pierde el guardado anterior.
+        texto = json.dumps(datos, ensure_ascii=False, indent=2)
         with open(ruta, "w", encoding="utf-8") as archivo:
-            json.dump(datos, archivo, ensure_ascii=False, indent=2)
+            archivo.write(texto)
 
     @classmethod
     def cargar(cls, ruta):
@@ -230,10 +261,13 @@ class Deposito:
         for d in datos["remesas"]:
             remesa = Remesa.desde_dict(d, deposito.materiales, deposito.proveedores)
             deposito.remesas[remesa.get_id()] = remesa
-            deposito.remesas_por_material.setdefault(remesa.get_material().get_id(), []).append(remesa)
+            deposito._indexar_remesa(remesa)
         for d in datos["retiros"]:
             retiro = Retiro.desde_dict(d, deposito.materiales)
             deposito.retiros[retiro.get_id()] = retiro
+        for d in datos.get("pedidos", []):
+            pedido = Pedido.desde_dict(d, deposito.materiales, deposito.proveedores)
+            deposito.pedidos[pedido.get_id()] = pedido
         for d in datos["movimientos"]:
             remesa = deposito.remesas[d["remesa"]]
             fecha = date.fromisoformat(d["fecha"])

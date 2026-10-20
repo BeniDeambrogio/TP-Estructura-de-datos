@@ -1,5 +1,8 @@
 import json
 from datetime import date
+from decimal import Decimal
+
+import pytest
 
 from inventario import Deposito
 
@@ -104,3 +107,86 @@ def test_deposito_vacio_se_guarda_y_carga(tmp_path):
 
     assert cargado.get_materiales() == {}
     assert cargado.solicitudes_pendientes() == 0
+
+
+# ---------- Datos adicionales (**kwargs) que JSON no sabe escribir ----------
+
+def test_guardar_convierte_a_texto_los_kwargs_que_json_no_sabe_escribir(tmp_path):
+    deposito = Deposito()
+    material = deposito.registrar_material("AL-01", "Aluminio AL-01", "kg", 10)
+    proveedor = deposito.registrar_proveedor("P-1", "Metales SA", 5)
+    deposito.crear_remesa("R-1", material, proveedor, 8, fecha_recepcion=date(2026, 3, 2),
+                           fecha_fabricacion=date(2026, 1, 15), temperatura=Decimal("4.5"), lote="L-7", turno=2)
+
+    cargado = _guardar_y_cargar(deposito, tmp_path)
+
+    remesa = cargado.get_remesas()["R-1"]
+    assert remesa.obtener_dato("fecha_fabricacion") == "2026-01-15"
+    assert remesa.obtener_dato("temperatura") == "4.5"
+    assert remesa.obtener_dato("lote") == "L-7"
+    assert remesa.obtener_dato("turno") == 2
+
+
+def test_guardar_que_falla_no_deja_el_archivo_a_medio_escribir(tmp_path):
+    ruta = tmp_path / "deposito.json"
+    deposito = Deposito()
+    material = deposito.registrar_material("AL-01", "Aluminio AL-01", "kg", 10)
+    proveedor = deposito.registrar_proveedor("P-1", "Metales SA", 5)
+    remesa = deposito.crear_remesa("R-1", material, proveedor, 8, fecha_recepcion=date(2026, 3, 2))
+    deposito.guardar(ruta)
+    contenido_bueno = ruta.read_text(encoding="utf-8")
+
+    remesa.datos_adicionales[(1, 2)] = "una clave que JSON no puede escribir"
+    with pytest.raises(TypeError):
+        deposito.guardar(ruta)
+
+    assert ruta.read_text(encoding="utf-8") == contenido_bueno
+    assert Deposito.cargar(ruta).get_remesas()["R-1"].get_cantidad_recibida() == 8
+
+
+# ---------- Pedidos ----------
+
+def test_guardar_y_cargar_restauran_los_pedidos_con_su_precio_exacto(tmp_path):
+    deposito = _deposito_con_operaciones()
+    proveedor = deposito.get_proveedores()["P-1"]
+    aluminio = deposito.get_materiales()["AL-01"]
+    pedido = deposito.crear_pedido("PED-1", proveedor)
+    pedido.agregar_renglon(aluminio, 20, Decimal("3.50"))
+    pedido.agregar_renglon(aluminio, 3, Decimal("0.10"))
+
+    cargado = _guardar_y_cargar(deposito, tmp_path)
+
+    recuperado = cargado.get_pedidos()["PED-1"]
+    assert recuperado.get_proveedor() is cargado.get_proveedores()["P-1"]
+    assert recuperado.get_renglones()[0].get_material() is cargado.get_materiales()["AL-01"]
+    assert recuperado.get_renglones()[1].get_precio_unitario() == Decimal("0.10")
+    assert recuperado.importe_total() == pedido.importe_total() == Decimal("70.30")
+
+
+def test_cargar_un_json_sin_pedidos_sigue_funcionando(tmp_path):
+    ruta = tmp_path / "deposito.json"
+    _deposito_con_operaciones().guardar(ruta)
+    datos = json.loads(ruta.read_text(encoding="utf-8"))
+    del datos["pedidos"]
+    ruta.write_text(json.dumps(datos), encoding="utf-8")
+
+    cargado = Deposito.cargar(ruta)
+
+    assert cargado.get_pedidos() == {}
+    assert set(cargado.get_materiales()) == {"AL-01", "CU-01"}
+
+
+# ---------- Indice ordenado ----------
+
+def test_cargar_mantiene_el_orden_fefo_de_las_remesas_registradas_desordenadas(tmp_path):
+    deposito = Deposito()
+    material = deposito.registrar_material("AL-01", "Aluminio AL-01", "kg", 10)
+    proveedor = deposito.registrar_proveedor("P-1", "Metales SA", 5)
+    deposito.crear_remesa("R-103", material, proveedor, 15, fecha_recepcion=date(2026, 3, 5))
+    deposito.crear_remesa("R-101", material, proveedor, 8,
+                           fecha_recepcion=date(2026, 3, 2), fecha_vencimiento=date(2026, 3, 20))
+
+    cargado = _guardar_y_cargar(deposito, tmp_path)
+
+    aluminio = cargado.get_materiales()["AL-01"]
+    assert [r.get_id() for r in cargado.remesas_de_material(aluminio)] == ["R-101", "R-103"]

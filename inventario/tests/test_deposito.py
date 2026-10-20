@@ -9,6 +9,7 @@ from inventario import (
     IdDuplicadoError,
     Material,
     MovimientoIngreso,
+    PoliticaConsumo,
     PoliticaFEFO,
     Proveedor,
     StockInsuficienteError,
@@ -23,6 +24,7 @@ def test_init_crea_colecciones_vacias_y_politica_fefo():
     assert deposito.remesas == {}
     assert deposito.movimientos == []
     assert deposito.retiros == {}
+    assert deposito.pedidos == {}
     assert isinstance(deposito.politica_consumo, PoliticaFEFO)
 
 
@@ -328,3 +330,91 @@ def test_atender_siguiente_sin_solicitudes_lanza_estructura_vacia_error():
 
     with pytest.raises(EstructuraVaciaError):
         deposito.atender_siguiente(date(2026, 3, 10))
+
+
+# ---------- Indice ordenado segun la politica (ListaEnlazadaOrdenada) ----------
+
+def _deposito_con_remesas_fuera_de_orden():
+    """Las remesas se registran en un orden distinto al de FEFO."""
+    deposito = Deposito()
+    material = deposito.registrar_material("AL-01", "Aluminio AL-01", "kg", 10)
+    proveedor = deposito.registrar_proveedor("P-1", "Metales SA", 5)
+    deposito.crear_remesa("R-103", material, proveedor, 15, fecha_recepcion=date(2026, 3, 5))
+    deposito.crear_remesa("R-102", material, proveedor, 12,
+                           fecha_recepcion=date(2026, 3, 4), fecha_vencimiento=date(2026, 3, 30))
+    deposito.crear_remesa("R-101", material, proveedor, 8,
+                           fecha_recepcion=date(2026, 3, 2), fecha_vencimiento=date(2026, 3, 20))
+    return deposito, material
+
+
+def test_remesas_de_material_queda_ordenada_por_fefo_aunque_se_registren_desordenadas():
+    deposito, material = _deposito_con_remesas_fuera_de_orden()
+
+    assert [r.get_id() for r in deposito.remesas_de_material(material)] == ["R-101", "R-102", "R-103"]
+
+
+def test_retirar_consume_en_orden_fefo_sin_importar_el_orden_de_registro():
+    deposito, material = _deposito_con_remesas_fuera_de_orden()
+
+    retiro = deposito.retirar(material, 18, date(2026, 3, 10))
+
+    assert [m.get_remesa().get_id() for m in retiro.get_movimientos()] == ["R-101", "R-102"]
+    assert deposito.get_remesas()["R-103"].get_saldo_disponible() == 15
+
+
+def test_retirar_saltea_las_remesas_vencidas_a_la_fecha_del_retiro():
+    deposito, material = _deposito_con_remesas_fuera_de_orden()
+
+    retiro = deposito.retirar(material, 5, date(2026, 4, 5))  # R-101 y R-102 ya vencieron
+
+    assert [m.get_remesa().get_id() for m in retiro.get_movimientos()] == ["R-103"]
+
+
+def test_cambiar_la_politica_cambia_el_orden_sin_tocar_retirar():
+    class PoliticaLIFO(PoliticaConsumo):
+        def clave_orden(self, remesa):
+            # Primero la que llego ultima: se invierte el orden por ordinal de fecha.
+            return -remesa.get_fecha_recepcion().toordinal()
+
+    deposito = Deposito()
+    deposito.politica_consumo = PoliticaLIFO()
+    material = deposito.registrar_material("AL-01", "Aluminio AL-01", "kg", 10)
+    proveedor = deposito.registrar_proveedor("P-1", "Metales SA", 5)
+    deposito.crear_remesa("R-1", material, proveedor, 10, fecha_recepcion=date(2026, 3, 1))
+    deposito.crear_remesa("R-2", material, proveedor, 10, fecha_recepcion=date(2026, 3, 2))
+
+    retiro = deposito.retirar(material, 4, date(2026, 3, 10))
+
+    assert [m.get_remesa().get_id() for m in retiro.get_movimientos()] == ["R-2"]
+
+
+# ---------- Pedidos registrados en el deposito ----------
+
+def test_crear_pedido_lo_guarda_y_lo_devuelve():
+    deposito = Deposito()
+    proveedor = deposito.registrar_proveedor("P-1", "Metales SA", 5)
+
+    pedido = deposito.crear_pedido("PED-1", proveedor)
+
+    assert pedido.get_proveedor() is proveedor
+    assert deposito.get_pedidos()["PED-1"] is pedido
+
+
+def test_crear_pedido_id_duplicado_lanza_id_duplicado_error():
+    deposito = Deposito()
+    proveedor = deposito.registrar_proveedor("P-1", "Metales SA", 5)
+    deposito.crear_pedido("PED-1", proveedor)
+
+    with pytest.raises(IdDuplicadoError):
+        deposito.crear_pedido("PED-1", proveedor)
+
+
+def test_crear_pedido_no_modifica_el_inventario():
+    deposito, material = _deposito_con_escenario()
+    proveedor = deposito.get_proveedores()["P-1"]
+    existencia_antes = deposito.existencia_fisica(material)
+
+    pedido = deposito.crear_pedido("PED-1", proveedor)
+    pedido.agregar_renglon(material, 100, 2)
+
+    assert deposito.existencia_fisica(material) == existencia_antes

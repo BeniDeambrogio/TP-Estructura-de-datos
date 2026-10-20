@@ -32,6 +32,16 @@ class RenglonPedido:
     def subtotal(self):
         return self.precio_unitario * Decimal(str(self.cantidad))
 
+    # ---------- Persistencia ----------
+    def a_dict(self):
+        # Decimal no es un tipo que JSON sepa escribir: se guarda como texto
+        # y se reconstruye con Decimal(texto), sin perder decimales.
+        return {
+            "material": self.material.get_id(),
+            "cantidad": self.cantidad,
+            "precio_unitario": str(self.precio_unitario),
+        }
+
 
 class Pedido:
     """Solicitud dirigida a un unico proveedor, compuesta por renglones."""
@@ -70,3 +80,18 @@ class Pedido:
         for renglon in self.renglones:
             total += renglon.subtotal()
         return total
+
+    # ---------- Persistencia ----------
+    def a_dict(self):
+        return {
+            "id": self.id,
+            "proveedor": self.proveedor.get_id(),
+            "renglones": [renglon.a_dict() for renglon in self.renglones],
+        }
+
+    @classmethod
+    def desde_dict(cls, datos, materiales, proveedores):
+        pedido = cls(datos["id"], proveedores[datos["proveedor"]])
+        for d in datos["renglones"]:
+            pedido.agregar_renglon(materiales[d["material"]], d["cantidad"], Decimal(d["precio_unitario"]))
+        return pedido

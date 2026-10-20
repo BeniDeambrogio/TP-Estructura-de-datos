@@ -50,3 +50,24 @@ def test_ordenar_deja_remesas_sin_vencimiento_al_final():
     orden = PoliticaFEFO().ordenar([sin_vencimiento, con_vencimiento])
 
     assert [r.get_id() for r in orden] == ["R-1", "R-2"]
+
+
+def test_clave_orden_fefo_deja_las_remesas_sin_vencimiento_despues():
+    material = _material()
+    proveedor = _proveedor()
+    con_vencimiento = Remesa("R-1", material, proveedor, 5, date(2026, 3, 1), date(2026, 3, 20))
+    sin_vencimiento = Remesa("R-2", material, proveedor, 5, date(2026, 3, 1))
+    politica = PoliticaFEFO()
+
+    assert politica.clave_orden(con_vencimiento) < politica.clave_orden(sin_vencimiento)
+
+
+def test_ordenar_coincide_con_ordenar_por_clave_orden():
+    material = _material()
+    proveedor = _proveedor()
+    r1 = Remesa("R-1", material, proveedor, 5, date(2026, 3, 3), date(2026, 3, 30))
+    r2 = Remesa("R-2", material, proveedor, 5, date(2026, 3, 1), date(2026, 3, 20))
+    r3 = Remesa("R-3", material, proveedor, 5, date(2026, 3, 2))
+    politica = PoliticaFEFO()
+
+    assert politica.ordenar([r3, r1, r2]) == sorted([r3, r1, r2], key=politica.clave_orden)

@@ -62,3 +62,53 @@ class Cola:
             datos.append(actual.dato)
             actual = actual.siguiente
         return datos
+
+
+class ListaEnlazadaOrdenada:
+    """
+    Lista enlazada (con Nodo) que mantiene sus datos siempre ordenados segun
+    una funcion clave: el menor queda primero.
+    Insertar recorre la lista hasta encontrar el lugar (O(n)), pero leerla en
+    orden no necesita volver a ordenar nada.
+    """
+
+    def __init__(self, clave):
+        self._primero = None
+        self._tamanio = 0
+        self._clave = clave
+
+    def insertar(self, dato):
+        nuevo = Nodo(dato)
+        clave_nuevo = self._clave(dato)
+        if self.esta_vacia() or clave_nuevo < self._clave(self._primero.dato):
+            nuevo.siguiente = self._primero
+            self._primero = nuevo
+        else:
+            # Se avanza mientras el siguiente nodo tenga clave menor o igual:
+            # ante un empate el dato nuevo queda despues del que ya estaba.
+            anterior = self._primero
+            while anterior.siguiente is not None and self._clave(anterior.siguiente.dato) <= clave_nuevo:
+                anterior = anterior.siguiente
+            nuevo.siguiente = anterior.siguiente
+            anterior.siguiente = nuevo
+        self._tamanio += 1
+
+    def primero(self):
+        if self.esta_vacia():
+            raise EstructuraVaciaError("La lista esta vacia")
+        return self._primero.dato
+
+    def esta_vacia(self):
+        return self._primero is None
+
+    def tamanio(self):
+        return self._tamanio
+
+    def a_lista(self):
+        """Devuelve los datos en orden, sin modificar la lista."""
+        datos = []
+        actual = self._primero
+        while actual is not None:
+            datos.append(actual.dato)
+            actual = actual.siguiente
+        return datos

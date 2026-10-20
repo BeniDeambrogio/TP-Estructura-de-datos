@@ -23,6 +23,8 @@ Ver `Diagrama.jpeg` en la raíz del repositorio.
 
 Muestra las relaciones entre las clases. Estas relaciones pueden ser de composicion, asociación o herencia, lo cual esta indicado mediante el tipo de flecha utilizado.
 
+**Aviso:** con los cambios nuevos el diagrama ya no refleja el funcionamiento actual del programa (por ejemplo, no incluye la cola de solicitudes, la lista ordenada, los pedidos dentro del depósito ni el cambio a `crear_remesa`). En breve lo vamos a rehacer para que sí lo refleje.
+
 ## Estructura del proyecto
 
 - `__init__.py` — Reexporta todas las clases del paquete
@@ -34,7 +36,7 @@ Muestra las relaciones entre las clases. Estas relaciones pueden ser de composic
 - `retiro.py` — Retiro
 - `pedido.py` — RenglonPedido, Pedido
 - `solicitud_retiro.py` — SolicitudRetiro
-- `estructuras.py` — Nodo, Cola (implementada con nodos)
+- `estructuras.py` — Nodo, Cola y ListaEnlazadaOrdenada (implementadas con nodos)
 - `excepciones.py` — Excepciones propias del dominio
 - `deposito.py` — Deposito (coordina todo el inventario)
 
@@ -49,12 +51,14 @@ Muestra las relaciones entre las clases. Estas relaciones pueden ser de composic
 - `Retiro.agregar_movimiento()`, `Retiro.cantidad_consumida()`
 - Excepciones propias (`ErrorInventario` y sus subclases): validadores (`validar_cantidad`,`validar_punto_reposicion`, `validar_plazo_entrega`) y validación de saldo en `Remesa.consumir()`
 - Todos los métodos de `Deposito` usando diccionarios: `registrar_material`, `registrar_proveedor`, `crear_remesa`, `existencia_fisica`,  `existencia_disponible`, `retirar()`, `materiales_a_reponer()`, `remesas_de_retiro()`, `retiros_de_remesa()`
-- `PoliticaFEFO.ordenar()` con `sorted()` y una función `lambda`
+- Política de consumo (`clave_orden()`): cada política indica cómo se ordenan las remesas para decidir cuál se consume primero. FEFO mira primero la fecha de vencimiento y, si empatan, la de recepción. `ordenar()` usa ese mismo criterio. Para sumar otra política alcanza con definir su propio criterio
 - `Deposito.crear_remesa()` usando `**kwargs` para datos opcionales (reemplaza al anterior `registrar_remesa`)
-- `Cola` (FIFO) implementada con nodos, guardando `frente` y `fin` para que `encolar()` y `desencolar()` sean O(1)
-- Cola de solicitudes de retiro en `Deposito`: `solicitar_retiro()`, `atender_siguiente()`, `solicitudes_pendientes()`. Las solicitudes se atienden por orden de llegada; si no hay stock para la primera, queda esperando sin que se saltee a nadie
-- Índice `remesas_por_material` en `Deposito`: las consultas de existencias y los retiros recorren solo las remesas del material consultado
-- Persistencia en JSON: `Deposito.guardar(ruta)` y `Deposito.cargar(ruta)`. Cada clase sabe convertirse a diccionario (`a_dict()`) y reconstruirse (`desde_dict()`). Las referencias entre objetos se guardan por id y se resuelven al cargar; las fechas se guardan como texto ISO (`"2026-03-20"`); la cola de solicitudes se guarda y se recarga en orden FIFO
+- `Cola`: una fila donde el primero que llega es el primero que sale. `encolar()` agrega al final, `desencolar()` saca del principio y `frente()` muestra quién está primero. Está armada con nodos, que son piezas chiquitas donde cada una apunta a la siguiente
+- Cola de solicitudes de retiro (`SolicitudRetiro`): una solicitud es un pedido de retiro que todavía no se hizo. `solicitar_retiro()` la anota en la fila sin tocar el stock, `atender_siguiente()` hace el retiro de la que está primera y `solicitudes_pendientes()` dice cuántas esperan. Si no alcanza el stock para la primera, se queda esperando y no se atiende a las de atrás
+- `ListaEnlazadaOrdenada`: una lista que siempre se mantiene en orden. Cuando se agrega algo nuevo, se coloca en el lugar que le corresponde
+- Remesas por material (`remesas_por_material` en `Deposito`): el depósito guarda aparte las remesas de cada material, ya en el orden en que se consumen según la política. Así, al consultar o retirar solo se miran las remesas de ese material y no hace falta ordenarlas en cada retiro. Igual se revisa cuáles se pueden usar, porque la primera podría estar vencida o sin saldo
+- Pedidos en `Deposito`: `crear_pedido()` registra un pedido a un proveedor (no se puede repetir el id) y `get_pedidos()` los devuelve. Un pedido no cambia el stock
+- Guardar y cargar: `Deposito.guardar(ruta)` guarda todo el depósito en un archivo (formato JSON) y `Deposito.cargar(ruta)` lo vuelve a armar igual que estaba: materiales, proveedores, remesas, retiros, movimientos, pedidos y la fila de solicitudes. Para eso cada clase sabe pasarse a un diccionario (`a_dict()`) y volver a armarse desde uno (`desde_dict()`). Los datos extra de una remesa se guardan como texto, así que al cargar vuelven como texto y no con su tipo original. Además, el archivo se prepara completo antes de escribirse, por lo que si hay un error no queda a medias
 
   ```python
   deposito.guardar("deposito.json")
@@ -63,4 +67,4 @@ Muestra las relaciones entre las clases. Estas relaciones pueden ser de composic
 
 ## Qué falta y por qué
 
-Por ahora no queda ningún método sin implementar del alcance original. Como posible mejora, FEFO podría resolverse con una cola de prioridad en lugar de ordenar con `sorted()` en cada retiro (no usamos una cola común porque las remesas no llegan necesariamente ordenadas por vencimiento). También dependiendo de lo que nos den de teoría en las siguientes clases, evaluaremos si son necesarios cambios dentro del programa.
+Por ahora no queda ningún método sin implementar del alcance original. Como posible mejora, en lugar de la lista ordenada se podría usar una estructura llamada cola de prioridad (heap), que agrega las remesas más rápido. Los datos extra de las remesas vuelven como texto al cargar el archivo; si hiciera falta que conserven su tipo original, habría que guardar también ese dato. También dependiendo de lo que nos den de teoría en las siguientes clases, evaluaremos si son necesarios cambios dentro del programa.

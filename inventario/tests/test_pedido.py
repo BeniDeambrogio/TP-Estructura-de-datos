@@ -44,3 +44,14 @@ def test_total_pedidos_aumenta_al_crear_instancia():
     Pedido("PED-1", _proveedor())
 
     assert Pedido.total_pedidos() == 1
+
+
+def test_pedido_a_dict_guarda_el_precio_como_texto_y_las_referencias_por_id():
+    pedido = Pedido("PED-1", _proveedor())
+    pedido.agregar_renglon(_material(), 10, Decimal("2.50"))
+
+    assert pedido.a_dict() == {
+        "id": "PED-1",
+        "proveedor": "P-1",
+        "renglones": [{"material": "AL-01", "cantidad": 10, "precio_unitario": "2.50"}],
+    }

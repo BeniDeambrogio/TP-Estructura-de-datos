@@ -6,7 +6,7 @@ from .politica_consumo import PoliticaConsumo, PoliticaFEFO
 from .retiro import Retiro
 from .pedido import Pedido, RenglonPedido
 from .solicitud_retiro import SolicitudRetiro
-from .estructuras import Nodo, Cola
+from .estructuras import Nodo, Cola, ListaEnlazadaOrdenada
 from .deposito import Deposito
 from .excepciones import (
     ErrorInventario,
@@ -32,6 +32,7 @@ __all__ = [
     "SolicitudRetiro",
     "Nodo",
     "Cola",
+    "ListaEnlazadaOrdenada",
     "Deposito",
     "ErrorInventario",
     "CantidadInvalidaError",

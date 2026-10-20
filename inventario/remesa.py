@@ -89,8 +89,25 @@ class Remesa:
             "saldo_disponible": self.saldo_disponible,
             "fecha_recepcion": self.fecha_recepcion.isoformat(),
             "fecha_vencimiento": self.fecha_vencimiento.isoformat() if self.fecha_vencimiento else None,
-            "datos_adicionales": self.datos_adicionales,
+            "datos_adicionales": self._datos_adicionales_a_json(),
         }
+
+    @staticmethod
+    def _valor_a_json(valor):
+        # JSON solo sabe escribir texto, numeros, booleanos y None. Cualquier
+        # otro valor que llegue por **kwargs (fechas, Decimal, etc.) se guarda
+        # como texto: al cargar vuelve como texto, no como su tipo original.
+        if isinstance(valor, date):
+            return valor.isoformat()
+        if valor is None or isinstance(valor, (str, int, float, bool)):
+            return valor
+        return str(valor)
+
+    def _datos_adicionales_a_json(self):
+        convertidos = {}
+        for clave, valor in self.datos_adicionales.items():
+            convertidos[clave] = self._valor_a_json(valor)
+        return convertidos
 
     @classmethod
     def desde_dict(cls, datos, materiales, proveedores):
