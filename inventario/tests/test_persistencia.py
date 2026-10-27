@@ -190,3 +190,9 @@ def test_cargar_mantiene_el_orden_fefo_de_las_remesas_registradas_desordenadas(t
 
     aluminio = cargado.get_materiales()["AL-01"]
     assert [r.get_id() for r in cargado.remesas_de_material(aluminio)] == ["R-101", "R-103"]
+
+
+def test_cargar_reconstruye_el_set_de_ids_de_remesas_de_cada_retiro(tmp_path):
+    cargado = _guardar_y_cargar(_deposito_con_operaciones(), tmp_path)
+
+    assert cargado.get_retiros()["RET-1"].ids_de_remesas() == {"R-101", "R-102"}

@@ -146,6 +146,14 @@ for mov in retiro1.get_movimientos():
 print("\nFEFO en accion: se agoto primero R-101 (vence 20/3), recien despues se tomo de "
       "R-102 (vence 30/3). R-103 (sin vencimiento) no se toco.")
 
+sub("El reparto entre remesas es RECURSIVO (Deposito._repartir)")
+print("Para repartir 18 kg entre [R-101 (8 kg), R-102 (12 kg), R-103 (15 kg), R-EXTRA (3 kg)]:")
+print("  _repartir(18): toma R-101, consume 8 y reparte los 10 que faltan entre las demas")
+print("    _repartir(10): toma R-102, consume 10 y reparte los 0 que faltan")
+print("      _repartir(0): caso base, no queda nada por repartir -> []")
+print("  Se vuelve armando la lista: [(R-101, 8), (R-102, 10)] (R-103 y R-EXTRA ni se miran)")
+print("Solo calcula: las remesas se modifican despues, asi un retiro rechazado no deja cambios a medias.")
+
 sub("Polimorfismo: recorrer TODOS los movimientos y llamar tipo() sin preguntar la clase")
 for mov in deposito.get_movimientos():
     print(f"  {mov.get_id()}: tipo()={mov.tipo():<8} remesa={mov.get_remesa().get_id()} "
@@ -154,6 +162,12 @@ for mov in deposito.get_movimientos():
 sub("Trazabilidad: de un retiro a sus remesas, y de una remesa a sus retiros")
 print("remesas_de_retiro(retiro1) ->", [r.get_id() for r in deposito.remesas_de_retiro(retiro1)])
 print("retiros_de_remesa(R-102)   ->", [r.get_id() for r in deposito.retiros_de_remesa(r102)])
+
+sub("Cada Retiro guarda un SET con los ids de las remesas que uso")
+print("retiro1.ids_de_remesas() ->", sorted(retiro1.ids_de_remesas()), "(es un set: sin repetidos)")
+print("'R-102' in retiro1.ids_de_remesas() ->", "R-102" in retiro1.ids_de_remesas())
+print("'R-103' in retiro1.ids_de_remesas() ->", "R-103" in retiro1.ids_de_remesas())
+print("retiros_de_remesa() usa esa pregunta (in) en vez de recorrer todos los movimientos de cada retiro.")
 
 sub("Un retiro que pide mas de lo disponible se rechaza SIN tocar el inventario")
 saldo_r103_antes = r103.get_saldo_disponible()

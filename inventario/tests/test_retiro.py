@@ -37,3 +37,33 @@ def test_total_retiros_aumenta_al_crear_instancia():
     Retiro("RET-1", "AL-01", date(2026, 3, 10), 18)
 
     assert Retiro.total_retiros() == 1
+
+
+# ---------- set con los ids de las remesas usadas ----------
+
+def test_retiro_nuevo_no_tiene_ids_de_remesas():
+    retiro = Retiro("RET-1", "AL-01", date(2026, 3, 10), 18)
+
+    assert retiro.ids_de_remesas() == set()
+
+
+def test_agregar_movimiento_suma_el_id_de_su_remesa_al_set():
+    retiro = Retiro("RET-1", "AL-01", date(2026, 3, 10), 18)
+
+    retiro.agregar_movimiento(MovimientoRetiro("MOV-1", date(2026, 3, 10), _remesa("R-101"), 8, retiro))
+    retiro.agregar_movimiento(MovimientoRetiro("MOV-2", date(2026, 3, 10), _remesa("R-102"), 10, retiro))
+
+    assert retiro.ids_de_remesas() == {"R-101", "R-102"}
+    assert "R-101" in retiro.ids_de_remesas()
+    assert "R-999" not in retiro.ids_de_remesas()
+
+
+def test_set_de_ids_no_repite_una_remesa_con_dos_movimientos():
+    retiro = Retiro("RET-1", "AL-01", date(2026, 3, 10), 18)
+    remesa = _remesa("R-101")
+
+    retiro.agregar_movimiento(MovimientoRetiro("MOV-1", date(2026, 3, 10), remesa, 3, retiro))
+    retiro.agregar_movimiento(MovimientoRetiro("MOV-2", date(2026, 3, 10), remesa, 2, retiro))
+
+    assert len(retiro.get_movimientos()) == 2
+    assert retiro.ids_de_remesas() == {"R-101"}

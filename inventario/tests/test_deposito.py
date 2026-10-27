@@ -12,6 +12,7 @@ from inventario import (
     PoliticaConsumo,
     PoliticaFEFO,
     Proveedor,
+    Remesa,
     StockInsuficienteError,
 )
 
@@ -418,3 +419,83 @@ def test_crear_pedido_no_modifica_el_inventario():
     pedido.agregar_renglon(material, 100, 2)
 
     assert deposito.existencia_fisica(material) == existencia_antes
+
+
+# ---------- Reparto recursivo del retiro entre remesas ----------
+
+def _remesas_para_repartir():
+    material = Material("AL-01", "Aluminio AL-01", "kg", 10)
+    proveedor = Proveedor("P-1", "Metales SA", 5)
+    r1 = Remesa("R-1", material, proveedor, 8, date(2026, 3, 1))
+    r2 = Remesa("R-2", material, proveedor, 12, date(2026, 3, 2))
+    r3 = Remesa("R-3", material, proveedor, 15, date(2026, 3, 3))
+    return [r1, r2, r3]
+
+
+def _ids_y_cantidades(distribucion):
+    return [(remesa.get_id(), cantidad) for remesa, cantidad in distribucion]
+
+
+def test_repartir_distribuye_entre_varias_remesas_en_orden():
+    remesas = _remesas_para_repartir()
+
+    distribucion = Deposito._repartir(remesas, 0, 18)
+
+    assert _ids_y_cantidades(distribucion) == [("R-1", 8), ("R-2", 10)]
+
+
+def test_repartir_con_una_cantidad_menor_al_saldo_usa_solo_la_primera():
+    remesas = _remesas_para_repartir()
+
+    distribucion = Deposito._repartir(remesas, 0, 5)
+
+    assert _ids_y_cantidades(distribucion) == [("R-1", 5)]
+
+
+def test_repartir_una_cantidad_igual_al_saldo_de_la_primera_no_toca_las_demas():
+    remesas = _remesas_para_repartir()
+
+    distribucion = Deposito._repartir(remesas, 0, 8)
+
+    assert _ids_y_cantidades(distribucion) == [("R-1", 8)]
+
+
+def test_repartir_caso_base_cantidad_cero_devuelve_lista_vacia():
+    assert Deposito._repartir(_remesas_para_repartir(), 0, 0) == []
+
+
+def test_repartir_caso_base_sin_remesas_devuelve_lista_vacia():
+    assert Deposito._repartir([], 0, 10) == []
+
+
+def test_repartir_si_las_remesas_no_alcanzan_reparte_lo_que_hay():
+    remesas = _remesas_para_repartir()[:2]  # solo 8 + 12 = 20
+
+    distribucion = Deposito._repartir(remesas, 0, 30)
+
+    assert _ids_y_cantidades(distribucion) == [("R-1", 8), ("R-2", 12)]
+
+
+def test_repartir_no_modifica_los_saldos_de_las_remesas():
+    remesas = _remesas_para_repartir()
+
+    Deposito._repartir(remesas, 0, 18)
+
+    assert [r.get_saldo_disponible() for r in remesas] == [8, 12, 15]
+
+
+def test_repartir_empezando_desde_otra_posicion_ignora_las_anteriores():
+    remesas = _remesas_para_repartir()
+
+    distribucion = Deposito._repartir(remesas, 1, 14)
+
+    assert _ids_y_cantidades(distribucion) == [("R-2", 12), ("R-3", 2)]
+
+
+# ---------- retiros_de_remesa usando el set de cada retiro ----------
+
+def test_retiros_de_remesa_de_una_remesa_que_nunca_se_uso_devuelve_lista_vacia():
+    deposito, material = _deposito_con_escenario()
+    deposito.retirar(material, 5, date(2026, 3, 10))  # sale solo de R-101
+
+    assert deposito.retiros_de_remesa(deposito.get_remesas()["R-103"]) == []

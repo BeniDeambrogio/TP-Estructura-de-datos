@@ -14,6 +14,9 @@ class Retiro:
         self.fecha = fecha
         self.cantidad_solicitada = self.validar_cantidad(cantidad_solicitada)
         self.movimientos = []
+        # Ids de las remesas de las que salio material en este retiro. Es un set:
+        # no admite repetidos y preguntar si un id esta (in) no recorre nada.
+        self.ids_remesas = set()
         Retiro.cantidad_retiros += 1
 
     # ---------- Getters ----------
@@ -32,6 +35,9 @@ class Retiro:
     def get_movimientos(self):
         return self.movimientos
 
+    def ids_de_remesas(self):
+        return self.ids_remesas
+
     # ---------- Metodo de CLASE ----------
     @classmethod
     def total_retiros(cls):
@@ -47,6 +53,7 @@ class Retiro:
     # ---------- Metodos de INSTANCIA ----------
     def agregar_movimiento(self, movimiento):
         self.movimientos.append(movimiento)
+        self.ids_remesas.add(movimiento.get_remesa().get_id())
 
     def cantidad_consumida(self):
         total = 0

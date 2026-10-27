@@ -149,13 +149,7 @@ class Deposito:
 
         # Se calcula la distribucion sin modificar todavia ninguna remesa,
         # para garantizar RN22 si algo fallara antes de este punto.
-        cantidad_restante = cantidad
-        distribucion = []
-        for remesa in remesas_ordenadas:
-            if cantidad_restante > 0:
-                cantidad_a_consumir = min(remesa.get_saldo_disponible(), cantidad_restante)
-                distribucion.append((remesa, cantidad_a_consumir))
-                cantidad_restante -= cantidad_a_consumir
+        distribucion = self._repartir(remesas_ordenadas, 0, cantidad)
 
         id_retiro = f"RET-{len(self.retiros) + 1}"
         retiro = Retiro(id_retiro, material, fecha, cantidad)
@@ -178,6 +172,23 @@ class Deposito:
         pedido = Pedido(id, proveedor)
         self.pedidos[id] = pedido
         return pedido
+
+    @staticmethod
+    def _repartir(remesas, posicion, cantidad_restante):
+        """
+        Reparte la cantidad entre las remesas, de la primera a la ultima, y
+        devuelve una lista de (remesa, cantidad a consumir). Solo calcula:
+        no modifica ninguna remesa.
+        Recursiva: toma la remesa de la posicion actual y reparte lo que falta
+        entre las que siguen.
+        """
+        # Caso base: no queda nada por repartir o se acabaron las remesas.
+        if cantidad_restante == 0 or posicion == len(remesas):
+            return []
+        remesa = remesas[posicion]
+        cantidad_a_consumir = min(remesa.get_saldo_disponible(), cantidad_restante)
+        resto = Deposito._repartir(remesas, posicion + 1, cantidad_restante - cantidad_a_consumir)
+        return [(remesa, cantidad_a_consumir)] + resto
 
     # ---------- Solicitudes de retiro (cola FIFO) ----------
     def solicitar_retiro(self, material, cantidad, fecha):
@@ -216,11 +227,7 @@ class Deposito:
     def retiros_de_remesa(self, remesa):
         resultado = []
         for retiro in self.retiros.values():
-            remesa_participo = False
-            for movimiento in retiro.get_movimientos():
-                if movimiento.get_remesa().get_id() == remesa.get_id():
-                    remesa_participo = True
-            if remesa_participo:
+            if remesa.get_id() in retiro.ids_de_remesas():
                 resultado.append(retiro)
         return resultado
 
