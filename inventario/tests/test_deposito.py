@@ -499,3 +499,67 @@ def test_retiros_de_remesa_de_una_remesa_que_nunca_se_uso_devuelve_lista_vacia()
     deposito.retirar(material, 5, date(2026, 3, 10))  # sale solo de R-101
 
     assert deposito.retiros_de_remesa(deposito.get_remesas()["R-103"]) == []
+
+
+# ---------- Operaciones de conjuntos (set) sobre los retiros ----------
+
+def _ids(remesas):
+    return [remesa.get_id() for remesa in remesas]
+
+
+def test_remesas_sin_usar_antes_de_retirar_son_todas():
+    deposito, _ = _deposito_con_escenario()
+
+    assert _ids(deposito.remesas_sin_usar()) == ["R-101", "R-102", "R-103"]
+
+
+def test_remesas_sin_usar_excluye_las_que_participaron_de_algun_retiro():
+    deposito, material = _deposito_con_escenario()
+    deposito.retirar(material, 5, date(2026, 3, 10))  # sale solo de R-101
+
+    assert _ids(deposito.remesas_sin_usar()) == ["R-102", "R-103"]
+
+
+def test_remesas_sin_usar_considera_la_union_de_todos_los_retiros():
+    deposito, material = _deposito_con_escenario()
+    deposito.retirar(material, 18, date(2026, 3, 10))  # R-101 y R-102
+
+    assert _ids(deposito.remesas_sin_usar()) == ["R-103"]
+
+
+def test_remesas_sin_usar_sin_remesas_devuelve_lista_vacia():
+    assert Deposito().remesas_sin_usar() == []
+
+
+def test_remesas_en_comun_devuelve_las_que_usaron_los_dos_retiros():
+    deposito, material = _deposito_con_escenario()
+    retiro_a = deposito.retirar(material, 18, date(2026, 3, 10))  # R-101 y R-102
+    retiro_b = deposito.retirar(material, 1, date(2026, 3, 10))   # R-102
+
+    assert _ids(deposito.remesas_en_comun(retiro_a, retiro_b)) == ["R-102"]
+
+
+def test_remesas_en_comun_sin_ninguna_devuelve_lista_vacia():
+    deposito, material = _deposito_con_escenario()
+    retiro_a = deposito.retirar(material, 8, date(2026, 3, 10))   # agota R-101
+    retiro_b = deposito.retirar(material, 3, date(2026, 3, 10))   # R-102
+
+    assert deposito.remesas_en_comun(retiro_a, retiro_b) == []
+
+
+def test_remesas_en_comun_de_un_retiro_consigo_mismo_son_todas_sus_remesas():
+    deposito, material = _deposito_con_escenario()
+    retiro = deposito.retirar(material, 18, date(2026, 3, 10))
+
+    assert _ids(deposito.remesas_en_comun(retiro, retiro)) == ["R-101", "R-102"]
+
+
+def test_remesas_en_comun_no_modifica_los_sets_de_los_retiros():
+    deposito, material = _deposito_con_escenario()
+    retiro_a = deposito.retirar(material, 18, date(2026, 3, 10))
+    retiro_b = deposito.retirar(material, 1, date(2026, 3, 10))
+
+    deposito.remesas_en_comun(retiro_a, retiro_b)
+
+    assert retiro_a.ids_de_remesas() == {"R-101", "R-102"}
+    assert retiro_b.ids_de_remesas() == {"R-102"}

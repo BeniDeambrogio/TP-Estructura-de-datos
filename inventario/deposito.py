@@ -224,6 +224,31 @@ class Deposito:
     def remesas_de_retiro(self, retiro):
         return [movimiento.get_remesa() for movimiento in retiro.get_movimientos()]
 
+    def remesas_sin_usar(self):
+        """Remesas de las que todavia no salio material en ningun retiro."""
+        # Union de los sets de ids de todos los retiros: las remesas usadas.
+        ids_usadas = set()
+        for retiro in self.retiros.values():
+            ids_usadas = ids_usadas | retiro.ids_de_remesas()
+        # Diferencia: todos los ids de remesas menos los usados.
+        ids_sin_usar = set(self.remesas) - ids_usadas
+        # Un set no tiene orden: se recorre el diccionario para devolverlas
+        # en el orden en que se registraron.
+        resultado = []
+        for remesa in self.remesas.values():
+            if remesa.get_id() in ids_sin_usar:
+                resultado.append(remesa)
+        return resultado
+
+    def remesas_en_comun(self, retiro_a, retiro_b):
+        """Remesas de las que salio material en los dos retiros, ordenadas por id."""
+        # Interseccion de los sets de ids de los dos retiros.
+        ids_comunes = retiro_a.ids_de_remesas() & retiro_b.ids_de_remesas()
+        resultado = []
+        for id_remesa in sorted(ids_comunes):
+            resultado.append(self.remesas[id_remesa])
+        return resultado
+
     def retiros_de_remesa(self, remesa):
         resultado = []
         for retiro in self.retiros.values():

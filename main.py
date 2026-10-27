@@ -169,6 +169,11 @@ print("'R-102' in retiro1.ids_de_remesas() ->", "R-102" in retiro1.ids_de_remesa
 print("'R-103' in retiro1.ids_de_remesas() ->", "R-103" in retiro1.ids_de_remesas())
 print("retiros_de_remesa() usa esa pregunta (in) en vez de recorrer todos los movimientos de cada retiro.")
 
+sub("Operaciones de conjuntos: remesas_sin_usar() (union y diferencia)")
+print("Todas las remesas registradas        ->", sorted(deposito.get_remesas()))
+print("Usadas por algun retiro (union)      ->", sorted(retiro1.ids_de_remesas()))
+print("remesas_sin_usar() (todas - usadas)  ->", [r.get_id() for r in deposito.remesas_sin_usar()])
+
 sub("Un retiro que pide mas de lo disponible se rechaza SIN tocar el inventario")
 saldo_r103_antes = r103.get_saldo_disponible()
 try:
@@ -194,6 +199,12 @@ sub("atender_siguiente(): se atiende SOL-1 (la primera que llego)")
 retiro_sol1 = deposito.atender_siguiente(f1)
 print(f"Se genero {retiro_sol1.get_id()} por {retiro_sol1.cantidad_consumida()} kg. "
       f"Pendientes: {deposito.solicitudes_pendientes()}")
+
+sub("Operaciones de conjuntos: remesas_en_comun() (interseccion de dos retiros)")
+print(f"{retiro1.get_id()} uso:", sorted(retiro1.ids_de_remesas()),
+      f"| {retiro_sol1.get_id()} uso:", sorted(retiro_sol1.ids_de_remesas()))
+print(f"remesas_en_comun({retiro1.get_id()}, {retiro_sol1.get_id()}) ->",
+      [r.get_id() for r in deposito.remesas_en_comun(retiro1, retiro_sol1)])
 
 sub("SOL-2 pide 60 kg y no alcanza: queda primera y NO se saltea a SOL-3")
 print("atender_siguiente() ->", deposito.atender_siguiente(f1), "(None: no se pudo atender)")
