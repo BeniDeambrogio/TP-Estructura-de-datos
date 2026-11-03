@@ -76,7 +76,7 @@ def test_cargar_restaura_existencias_e_indice_por_material(tmp_path):
 def test_cargar_restaura_movimientos_y_trazabilidad(tmp_path):
     cargado = _guardar_y_cargar(_deposito_con_operaciones(), tmp_path)
 
-    assert [m.tipo() for m in cargado.get_movimientos()] == ["INGRESO", "INGRESO", "INGRESO", "RETIRO", "RETIRO"]
+    assert [m.tipo() for m in cargado.get_movimientos().values()] == ["INGRESO", "INGRESO", "INGRESO", "RETIRO", "RETIRO"]
     retiro = cargado.get_retiros()["RET-1"]
     assert retiro.cantidad_consumida() == 10
     assert [r.get_id() for r in cargado.remesas_de_retiro(retiro)] == ["R-101", "R-102"]
@@ -99,7 +99,7 @@ def test_despues_de_cargar_los_ids_continuan_sin_repetirse(tmp_path):
 
     assert solicitud.get_id() == "SOL-3"
     assert retiro.get_id() == "RET-2"
-    assert cargado.get_movimientos()[-1].get_id() == "MOV-6"
+    assert list(cargado.get_movimientos().values())[-1].get_id() == "MOV-6"
 
 
 def test_deposito_vacio_se_guarda_y_carga(tmp_path):

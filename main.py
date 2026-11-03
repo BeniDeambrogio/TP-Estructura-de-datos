@@ -155,7 +155,7 @@ print("  Se vuelve armando la lista: [(R-101, 8), (R-102, 10)] (R-103 y R-EXTRA 
 print("Solo calcula: las remesas se modifican despues, asi un retiro rechazado no deja cambios a medias.")
 
 sub("Polimorfismo: recorrer TODOS los movimientos y llamar tipo() sin preguntar la clase")
-for mov in deposito.get_movimientos():
+for mov in deposito.get_movimientos().values():
     print(f"  {mov.get_id()}: tipo()={mov.tipo():<8} remesa={mov.get_remesa().get_id()} "
           f"cantidad={mov.get_cantidad()}")
 
@@ -290,7 +290,7 @@ titulo("10. Contadores de clase (metodos de clase)")
 print("Material.total_materiales()   ->", Material.total_materiales())
 print("Proveedor.total_proveedores() ->", Proveedor.total_proveedores())
 print("Pedido.total_pedidos()        ->", Pedido.total_pedidos())
-ingresos = [m for m in deposito.get_movimientos() if isinstance(m, MovimientoIngreso)]
+ingresos = [m for m in deposito.get_movimientos().values() if isinstance(m, MovimientoIngreso)]
 print("Movimientos de tipo INGRESO   ->", len(ingresos))
 
 # =====================================================================

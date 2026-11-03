@@ -23,7 +23,7 @@ class Deposito:
         self.materiales = {}
         self.proveedores = {}
         self.remesas = {}
-        self.movimientos = []
+        self.movimientos = {}
         self.retiros = {}
         self.politica_consumo = PoliticaFEFO()
         self.pedidos = {}
@@ -100,7 +100,7 @@ class Deposito:
         # RN23: registrar una remesa genera su movimiento de ingreso.
         id_movimiento = f"MOV-{len(self.movimientos) + 1}"
         movimiento_ingreso = MovimientoIngreso(id_movimiento, fecha_recepcion, remesa, cantidad)
-        self.movimientos.append(movimiento_ingreso)
+        self.movimientos[id_movimiento] = movimiento_ingreso
 
         return remesa
 
@@ -160,7 +160,7 @@ class Deposito:
             id_movimiento = f"MOV-{len(self.movimientos) + 1}"
             movimiento_retiro = MovimientoRetiro(id_movimiento, fecha, remesa, cantidad_a_consumir, retiro)
             retiro.agregar_movimiento(movimiento_retiro)
-            self.movimientos.append(movimiento_retiro)
+            self.movimientos[id_movimiento] = movimiento_retiro
 
         self.retiros[id_retiro] = retiro
         return retiro
@@ -264,7 +264,7 @@ class Deposito:
             "remesas": [r.a_dict() for r in self.remesas.values()],
             "retiros": [r.a_dict() for r in self.retiros.values()],
             "pedidos": [p.a_dict() for p in self.pedidos.values()],
-            "movimientos": [m.a_dict() for m in self.movimientos],
+            "movimientos": [m.a_dict() for m in self.movimientos.values()],
             # Se guardan del frente al fin para respetar el orden FIFO al cargar.
             "solicitudes": [s.a_dict() for s in self.solicitudes.a_lista()],
             "cantidad_solicitudes": self.cantidad_solicitudes,
@@ -309,7 +309,7 @@ class Deposito:
                 retiro = deposito.retiros[d["retiro"]]
                 movimiento = MovimientoRetiro(d["id"], fecha, remesa, d["cantidad"], retiro)
                 retiro.agregar_movimiento(movimiento)
-            deposito.movimientos.append(movimiento)
+            deposito.movimientos[movimiento.get_id()] = movimiento
         for d in datos["solicitudes"]:
             deposito.solicitudes.encolar(SolicitudRetiro.desde_dict(d, deposito.materiales))
         # Para que los proximos SOL-n sigan la numeracion y no repitan ids.

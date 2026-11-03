@@ -23,7 +23,7 @@ def test_init_crea_colecciones_vacias_y_politica_fefo():
     assert deposito.materiales == {}
     assert deposito.proveedores == {}
     assert deposito.remesas == {}
-    assert deposito.movimientos == []
+    assert deposito.movimientos == {}
     assert deposito.retiros == {}
     assert deposito.pedidos == {}
     assert isinstance(deposito.politica_consumo, PoliticaFEFO)
@@ -87,7 +87,7 @@ def test_crear_remesa_lo_guarda_y_genera_movimiento_ingreso():
                                     fecha_recepcion=date(2026, 3, 2), fecha_vencimiento=date(2026, 3, 20))
 
     assert deposito.get_remesas()["R-101"] is remesa
-    ingresos = [m for m in deposito.get_movimientos() if isinstance(m, MovimientoIngreso)]
+    ingresos = [m for m in deposito.get_movimientos().values() if isinstance(m, MovimientoIngreso)]
     assert len(ingresos) == 1
     assert ingresos[0].get_remesa() is remesa
 
