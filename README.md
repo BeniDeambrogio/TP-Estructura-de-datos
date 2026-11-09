@@ -15,7 +15,7 @@ los pedidos.
 
 ## Estado actual
 
-Actualmente, el proyecto está completo respecto de las reglas de negocio y funciona de punta a punta: se pueden registrar materiales, proveedores y remesas, retirar material respetando el orden FEFO, ver la trazabilidad de cada retiro y detectar qué materiales hay que reponer. Usamos herencia en Movimiento (con MovimientoIngreso y MovimientoRetiro) y en PoliticaConsumo (con PoliticaFEFO), y excepciones propias que heredan de ErrorInventario para avisar cuando algo no corresponde, por ejemplo un id repetido o un stock insuficiente. Deposito coordina todo usando diccionarios, y crear_remesa recibe los datos opcionales con kwargs, de modo que se pueden agregar datos nuevos sin cambiar su firma (surgió a partir de una consigna de la cátedra). A partir de la clase de Pilas y Colas agregamos una Cola hecha con nodos para atender las solicitudes de retiro por orden de llegada, y una lista enlazada ordenada que guarda las remesas de cada material en el orden en que se consumen, así retirar() no tiene que ordenarlas cada vez. También usamos recursividad para calcular cómo se reparte un retiro entre las remesas (reemplazó a un for) y sets para guardar qué remesas usó cada retiro, lo que permite saber qué remesas nunca se usaron o cuáles tienen en común dos retiros. Los pedidos a proveedores ahora quedan registrados en el depósito, y todo el estado se puede guardar y volver a cargar desde un archivo JSON. Además, hay 126 tests con pytest repartidos en 11 archivos y todos pasan, y un main.py que recorre el funcionamiento paso a paso.
+Actualmente, el proyecto está completo respecto de las reglas de negocio y funciona de punta a punta: se pueden registrar materiales, proveedores y remesas, retirar material respetando el orden FEFO, ver la trazabilidad de cada retiro y detectar qué materiales hay que reponer. Usamos herencia en Movimiento (con MovimientoIngreso y MovimientoRetiro) y en PoliticaConsumo (con PoliticaFEFO), y excepciones propias que heredan de ErrorInventario para avisar cuando algo no corresponde, por ejemplo un id repetido o un stock insuficiente. Deposito coordina todo usando diccionarios, y crear_remesa recibe los datos opcionales con kwargs, de modo que se pueden agregar datos nuevos sin cambiar su firma (surgió a partir de una consigna de la cátedra). A partir de la clase de Pilas y Colas agregamos una Cola hecha con nodos para atender las solicitudes de retiro por orden de llegada, y una lista enlazada ordenada que guarda las remesas de cada material en el orden en que se consumen, así retirar() no tiene que ordenarlas cada vez. También usamos recursividad para calcular cómo se reparte un retiro entre las remesas (reemplazó a un for) y sets para guardar qué remesas usó cada retiro, lo que permite saber qué remesas nunca se usaron o cuáles tienen en común dos retiros. Los pedidos a proveedores ahora quedan registrados en el depósito, y todo el estado se puede guardar y volver a cargar desde un archivo JSON. Además, hay 126 tests con pytest repartidos en 11 archivos y todos pasan, y un main.py que es un menú por consola para usar el sistema.
 
 ## Diagrama de clases
 
@@ -37,6 +37,11 @@ Muestra las relaciones entre las clases. Estas relaciones pueden ser de composic
 - `estructuras.py` — Nodo, Cola y ListaEnlazadaOrdenada (implementadas con nodos)
 - `excepciones.py` — Excepciones propias del dominio
 - `deposito.py` — Deposito (coordina todo el inventario)
+
+## Cómo ejecutarlo
+
+- `main.py` es un menú por consola para usar el sistema con datos propios: registrar materiales, proveedores y remesas, retirar material, usar la cola de solicitudes, ver existencias, trazabilidad, pedidos y guardar los cambios. Se corre con `python main.py`.
+- `deposito.json` son los datos guardados con los que arranca el menú. Cuando se guarda desde el menú, este archivo se actualiza. Si no existe, el menú ofrece cargar un ejemplo.
 
 ## Qué está implementado
 

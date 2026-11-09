@@ -1,0 +1,386 @@
+{
+  "materiales": [
+    {
+      "id": "AL-01",
+      "nombre": "Aluminio AL-01",
+      "unidad_medida": "kg",
+      "punto_reposicion": 10
+    },
+    {
+      "id": "CU-01",
+      "nombre": "Cobre CU-01",
+      "unidad_medida": "kg",
+      "punto_reposicion": 5
+    },
+    {
+      "id": "RES-01",
+      "nombre": "Resina epoxi",
+      "unidad_medida": "litros",
+      "punto_reposicion": 20
+    },
+    {
+      "id": "TOR-M6",
+      "nombre": "Tornillo M6 titanio",
+      "unidad_medida": "unidades",
+      "punto_reposicion": 500
+    }
+  ],
+  "proveedores": [
+    {
+      "id": "P-1",
+      "nombre": "Metales SA",
+      "plazo_entrega_dias": 5
+    },
+    {
+      "id": "P-2",
+      "nombre": "Cobres del Norte",
+      "plazo_entrega_dias": 3
+    },
+    {
+      "id": "P-3",
+      "nombre": "Quimicos del Sur",
+      "plazo_entrega_dias": 7
+    },
+    {
+      "id": "P-4",
+      "nombre": "Bulones Rosario",
+      "plazo_entrega_dias": 3
+    }
+  ],
+  "remesas": [
+    {
+      "id": "R-101",
+      "material": "AL-01",
+      "proveedor": "P-1",
+      "cantidad_recibida": 8,
+      "saldo_disponible": 0,
+      "fecha_recepcion": "2026-03-02",
+      "fecha_vencimiento": "2026-03-20",
+      "datos_adicionales": {
+        "lote": "L-001"
+      }
+    },
+    {
+      "id": "R-102",
+      "material": "AL-01",
+      "proveedor": "P-1",
+      "cantidad_recibida": 12,
+      "saldo_disponible": 1,
+      "fecha_recepcion": "2026-03-04",
+      "fecha_vencimiento": "2026-03-30",
+      "datos_adicionales": {
+        "lote": "L-002"
+      }
+    },
+    {
+      "id": "R-103",
+      "material": "AL-01",
+      "proveedor": "P-1",
+      "cantidad_recibida": 15,
+      "saldo_disponible": 0,
+      "fecha_recepcion": "2026-03-05",
+      "fecha_vencimiento": null,
+      "datos_adicionales": {}
+    },
+    {
+      "id": "R-201",
+      "material": "CU-01",
+      "proveedor": "P-2",
+      "cantidad_recibida": 2,
+      "saldo_disponible": 2,
+      "fecha_recepcion": "2026-03-06",
+      "fecha_vencimiento": null,
+      "datos_adicionales": {}
+    },
+    {
+      "id": "R-301",
+      "material": "RES-01",
+      "proveedor": "P-3",
+      "cantidad_recibida": 30,
+      "saldo_disponible": 15,
+      "fecha_recepcion": "2026-10-01",
+      "fecha_vencimiento": "2026-12-15",
+      "datos_adicionales": {
+        "lote": "EPX-881"
+      }
+    },
+    {
+      "id": "R-302",
+      "material": "RES-01",
+      "proveedor": "P-3",
+      "cantidad_recibida": 25,
+      "saldo_disponible": 25,
+      "fecha_recepcion": "2026-09-01",
+      "fecha_vencimiento": "2026-10-30",
+      "datos_adicionales": {
+        "lote": "EPX-850"
+      }
+    },
+    {
+      "id": "R-303",
+      "material": "RES-01",
+      "proveedor": "P-3",
+      "cantidad_recibida": 40,
+      "saldo_disponible": 0,
+      "fecha_recepcion": "2026-10-20",
+      "fecha_vencimiento": "2026-11-20",
+      "datos_adicionales": {
+        "lote": "EPX-902"
+      }
+    },
+    {
+      "id": "R-401",
+      "material": "TOR-M6",
+      "proveedor": "P-4",
+      "cantidad_recibida": 1000,
+      "saldo_disponible": 0,
+      "fecha_recepcion": "2026-10-05",
+      "fecha_vencimiento": null,
+      "datos_adicionales": {}
+    },
+    {
+      "id": "R-402",
+      "material": "TOR-M6",
+      "proveedor": "P-4",
+      "cantidad_recibida": 300,
+      "saldo_disponible": 200,
+      "fecha_recepcion": "2026-10-25",
+      "fecha_vencimiento": null,
+      "datos_adicionales": {
+        "lote": "TM-12"
+      }
+    },
+    {
+      "id": "R-104",
+      "material": "AL-01",
+      "proveedor": "P-1",
+      "cantidad_recibida": 50,
+      "saldo_disponible": 45,
+      "fecha_recepcion": "2026-10-15",
+      "fecha_vencimiento": null,
+      "datos_adicionales": {
+        "lote": "AL-77"
+      }
+    }
+  ],
+  "retiros": [
+    {
+      "id": "RET-1",
+      "material": "AL-01",
+      "fecha": "2026-03-10",
+      "cantidad_solicitada": 18
+    },
+    {
+      "id": "RET-2",
+      "material": "AL-01",
+      "fecha": "2026-03-11",
+      "cantidad_solicitada": 1
+    },
+    {
+      "id": "RET-3",
+      "material": "RES-01",
+      "fecha": "2026-11-03",
+      "cantidad_solicitada": 55
+    },
+    {
+      "id": "RET-4",
+      "material": "TOR-M6",
+      "fecha": "2026-11-03",
+      "cantidad_solicitada": 1100
+    },
+    {
+      "id": "RET-5",
+      "material": "AL-01",
+      "fecha": "2026-11-03",
+      "cantidad_solicitada": 20
+    }
+  ],
+  "pedidos": [
+    {
+      "id": "PED-1",
+      "proveedor": "P-3",
+      "renglones": [
+        {
+          "material": "RES-01",
+          "cantidad": 60,
+          "precio_unitario": "18.75"
+        }
+      ]
+    },
+    {
+      "id": "PED-2",
+      "proveedor": "P-4",
+      "renglones": [
+        {
+          "material": "TOR-M6",
+          "cantidad": 1000,
+          "precio_unitario": "0.42"
+        },
+        {
+          "material": "TOR-M6",
+          "cantidad": 200,
+          "precio_unitario": "0.40"
+        }
+      ]
+    }
+  ],
+  "movimientos": [
+    {
+      "id": "MOV-1",
+      "tipo": "INGRESO",
+      "fecha": "2026-03-02",
+      "remesa": "R-101",
+      "cantidad": 8
+    },
+    {
+      "id": "MOV-2",
+      "tipo": "INGRESO",
+      "fecha": "2026-03-04",
+      "remesa": "R-102",
+      "cantidad": 12
+    },
+    {
+      "id": "MOV-3",
+      "tipo": "INGRESO",
+      "fecha": "2026-03-05",
+      "remesa": "R-103",
+      "cantidad": 15
+    },
+    {
+      "id": "MOV-4",
+      "tipo": "INGRESO",
+      "fecha": "2026-03-06",
+      "remesa": "R-201",
+      "cantidad": 2
+    },
+    {
+      "id": "MOV-5",
+      "tipo": "INGRESO",
+      "fecha": "2026-10-01",
+      "remesa": "R-301",
+      "cantidad": 30
+    },
+    {
+      "id": "MOV-6",
+      "tipo": "INGRESO",
+      "fecha": "2026-09-01",
+      "remesa": "R-302",
+      "cantidad": 25
+    },
+    {
+      "id": "MOV-7",
+      "tipo": "INGRESO",
+      "fecha": "2026-10-20",
+      "remesa": "R-303",
+      "cantidad": 40
+    },
+    {
+      "id": "MOV-8",
+      "tipo": "INGRESO",
+      "fecha": "2026-10-05",
+      "remesa": "R-401",
+      "cantidad": 1000
+    },
+    {
+      "id": "MOV-9",
+      "tipo": "INGRESO",
+      "fecha": "2026-10-25",
+      "remesa": "R-402",
+      "cantidad": 300
+    },
+    {
+      "id": "MOV-10",
+      "tipo": "INGRESO",
+      "fecha": "2026-10-15",
+      "remesa": "R-104",
+      "cantidad": 50
+    },
+    {
+      "id": "MOV-11",
+      "tipo": "RETIRO",
+      "fecha": "2026-03-10",
+      "remesa": "R-101",
+      "cantidad": 8,
+      "retiro": "RET-1"
+    },
+    {
+      "id": "MOV-12",
+      "tipo": "RETIRO",
+      "fecha": "2026-03-10",
+      "remesa": "R-102",
+      "cantidad": 10,
+      "retiro": "RET-1"
+    },
+    {
+      "id": "MOV-13",
+      "tipo": "RETIRO",
+      "fecha": "2026-03-11",
+      "remesa": "R-102",
+      "cantidad": 1,
+      "retiro": "RET-2"
+    },
+    {
+      "id": "MOV-14",
+      "tipo": "RETIRO",
+      "fecha": "2026-11-03",
+      "remesa": "R-303",
+      "cantidad": 40,
+      "retiro": "RET-3"
+    },
+    {
+      "id": "MOV-15",
+      "tipo": "RETIRO",
+      "fecha": "2026-11-03",
+      "remesa": "R-301",
+      "cantidad": 15,
+      "retiro": "RET-3"
+    },
+    {
+      "id": "MOV-16",
+      "tipo": "RETIRO",
+      "fecha": "2026-11-03",
+      "remesa": "R-401",
+      "cantidad": 1000,
+      "retiro": "RET-4"
+    },
+    {
+      "id": "MOV-17",
+      "tipo": "RETIRO",
+      "fecha": "2026-11-03",
+      "remesa": "R-402",
+      "cantidad": 100,
+      "retiro": "RET-4"
+    },
+    {
+      "id": "MOV-18",
+      "tipo": "RETIRO",
+      "fecha": "2026-11-03",
+      "remesa": "R-103",
+      "cantidad": 15,
+      "retiro": "RET-5"
+    },
+    {
+      "id": "MOV-19",
+      "tipo": "RETIRO",
+      "fecha": "2026-11-03",
+      "remesa": "R-104",
+      "cantidad": 5,
+      "retiro": "RET-5"
+    }
+  ],
+  "solicitudes": [
+    {
+      "id": "SOL-2",
+      "material": "RES-01",
+      "cantidad": 100,
+      "fecha_solicitud": "2026-11-03"
+    },
+    {
+      "id": "SOL-3",
+      "material": "TOR-M6",
+      "cantidad": 50,
+      "fecha_solicitud": "2026-11-03"
+    }
+  ],
+  "cantidad_solicitudes": 3
+}
