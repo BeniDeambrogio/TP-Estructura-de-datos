@@ -73,4 +73,4 @@ Muestra las relaciones entre las clases. Estas relaciones pueden ser de composic
 
 ## Qué falta y por qué
 
-Por ahora no queda ningún método sin implementar del alcance original. Como posible mejora, en lugar de la lista ordenada se podría usar una estructura llamada cola de prioridad (heap), que agrega las remesas más rápido. Los datos extra de las remesas vuelven como texto al cargar el archivo; si hiciera falta que conserven su tipo original, habría que guardar también ese dato. También dependiendo de lo que nos den de teoría en las siguientes clases, evaluaremos si son necesarios cambios dentro del programa.
+Por ahora no queda ningún método sin implementar del alcance original. Los datos extra de las remesas vuelven como texto al cargar el archivo; si hiciera falta que conserven su tipo original, habría que guardar también ese dato. También dependiendo de lo que nos den de teoría en las siguientes clases, evaluaremos si son necesarios cambios dentro del programa.
